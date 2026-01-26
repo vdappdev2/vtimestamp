@@ -1,0 +1,155 @@
+@import 'tailwindcss';
+
+/* Arctic Glacier / Nordic Fjord Theme */
+
+/* Import fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* Theme variables using @theme */
+@theme {
+  /* Colors */
+  --color-glacier-ice-white: #F8FAFC;
+  --color-glacier-pure-white: #FFFFFF;
+  --color-glacier-navy: #1E3A5F;
+  --color-glacier-steel: #64748B;
+  --color-glacier-pale-blue: #E2E8F0;
+  --color-glacier-sky: #3B82F6;
+  --color-glacier-teal: #14B8A6;
+  --color-glacier-muted-red: #DC2626;
+  --color-glacier-deep-navy: #0F172A;
+  --color-glacier-slate: #1E293B;
+  --color-glacier-ice: #F1F5F9;
+  --color-glacier-steel-light: #94A3B8;
+  --color-glacier-slate-gray: #334155;
+  --color-glacier-ice-blue: #60A5FA;
+  --color-glacier-teal-light: #2DD4BF;
+  --color-glacier-coral: #F87171;
+
+  /* Fonts */
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+/* Base styles */
+:root {
+  /* Light mode (default) */
+  --color-bg: #F8FAFC;
+  --color-surface: #FFFFFF;
+  --color-text-primary: #1E3A5F;
+  --color-text-secondary: #64748B;
+  --color-border: #E2E8F0;
+  --color-primary: #3B82F6;
+  --color-success: #14B8A6;
+  --color-error: #DC2626;
+}
+
+.dark {
+  /* Dark mode */
+  --color-bg: #0F172A;
+  --color-surface: #1E293B;
+  --color-text-primary: #F1F5F9;
+  --color-text-secondary: #94A3B8;
+  --color-border: #334155;
+  --color-primary: #60A5FA;
+  --color-success: #2DD4BF;
+  --color-error: #F87171;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  line-height: 1.6;
+}
+
+/* Hash display styling */
+.hash {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  letter-spacing: 0.025em;
+  word-break: break-all;
+}
+
+/* Utility classes for theme colors */
+.bg-surface { background-color: var(--color-surface); }
+.text-primary { color: var(--color-text-primary); }
+.text-secondary { color: var(--color-text-secondary); }
+.border-theme { border-color: var(--color-border); }
+.bg-primary { background-color: var(--color-primary); }
+
+/* Focus styles */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Button base styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.1);
+}
+
+/* Navigation button style (outlined) */
+.nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  border-radius: 0.5rem;
+  background-color: var(--color-surface);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+  transition: all 0.15s ease;
+  text-decoration: none;
+}
+
+.nav-btn:hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.nav-btn-icon {
+  padding: 0.5rem;
+}
+
+/* Card styles */
+.card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+}
+
+/* Input styles */
+input[type="text"],
+input[type="email"],
+textarea {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+textarea:focus {
+  border-color: var(--color-primary);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}

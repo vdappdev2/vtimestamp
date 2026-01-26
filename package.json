@@ -1,0 +1,40 @@
+{
+	"name": "vtimestamp",
+	"private": true,
+	"version": "0.0.1",
+	"type": "module",
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"prepare": "svelte-kit sync || echo ''",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"audit": "npm audit",
+		"audit:fix": "npm audit fix"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-auto": "7.0.0",
+		"@types/qrcode": "1.5.6",
+		"@sveltejs/kit": "2.49.5",
+		"@sveltejs/vite-plugin-svelte": "6.2.4",
+		"@tailwindcss/postcss": "4.1.18",
+		"@tailwindcss/typography": "0.5.19",
+		"autoprefixer": "10.4.23",
+		"postcss": "8.5.6",
+		"svelte": "5.46.4",
+		"svelte-check": "4.3.5",
+		"tailwindcss": "4.1.18",
+		"typescript": "5.9.3",
+		"vite": "7.3.1"
+	},
+	"engines": {
+		"node": ">=20.0.0"
+	},
+	"dependencies": {
+		"bs58check": "4.0.0",
+		"qrcode": "1.5.4",
+		"verus-typescript-primitives": "github:VerusCoin/verus-typescript-primitives",
+		"verusid-ts-client": "https://github.com/VerusCoin/verusid-ts-client.git"
+	}
+}
