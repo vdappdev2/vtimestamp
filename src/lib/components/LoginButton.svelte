@@ -176,11 +176,7 @@
         <button class="btn btn-primary" onclick={openDeeplink}>
           Open in Verus Mobile
         </button>
-        <button
-          class="px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer"
-          style="background-color: transparent; color: var(--color-text-secondary); border: 1px solid var(--color-border);"
-          onclick={cancelLogin}
-        >
+        <button class="nav-btn" onclick={cancelLogin}>
           Cancel
         </button>
       </div>
