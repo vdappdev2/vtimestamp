@@ -1,20 +1,29 @@
 /**
  * Timestamp Callback Endpoint
  *
- * Receives and verifies the IdentityUpdateResponse from the wallet.
+ * Receives and verifies the GenericRequest response from the wallet.
  * The wallet sends the response here after user approves the timestamp.
  */
 
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { storeTimestampResult, isTimestampRequestActive } from '$lib/server/timestamp';
-import { IdentityUpdateResponse } from 'verus-typescript-primitives';
+import { storeTimestampResult } from '$lib/server/timestamp';
+import {
+  GenericRequest,
+  IdentityUpdateResponseOrdinalVDXFObject,
+  IdentityUpdateResponseDetails,
+} from 'verus-typescript-primitives';
 
 /**
  * Handle POST callback from wallet
  */
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, url }) => {
   try {
+    const requestId = url.searchParams.get('requestId');
+    if (!requestId) {
+      throw error(400, 'Missing requestId parameter');
+    }
+
     const contentType = request.headers.get('content-type') || '';
 
     let responseData: string;
@@ -44,7 +53,7 @@ export const POST: RequestHandler = async ({ request }) => {
     }
 
     // Store the result
-    storeTimestampResult(result.requestId, result.txid);
+    storeTimestampResult(requestId, result.txid);
 
     return json({
       success: true,
@@ -61,7 +70,15 @@ export const POST: RequestHandler = async ({ request }) => {
  */
 export const GET: RequestHandler = async ({ url }) => {
   try {
-    // Try to get response from query params
+    const requestId = url.searchParams.get('requestId');
+    if (!requestId) {
+      return new Response(errorPage('Missing requestId parameter'), {
+        status: 400,
+        headers: { 'Content-Type': 'text/html' },
+      });
+    }
+
+    // Find the response data from query params
     let responseData: string | null = null;
 
     for (const param of ['response', 'data']) {
@@ -75,6 +92,7 @@ export const GET: RequestHandler = async ({ url }) => {
     // Check for i-address style params
     if (!responseData) {
       for (const [key, value] of url.searchParams) {
+        if (key === 'requestId') continue;
         if (key.startsWith('i') && key.length > 30) {
           responseData = value || key;
           break;
@@ -99,7 +117,7 @@ export const GET: RequestHandler = async ({ url }) => {
     }
 
     // Store the result
-    storeTimestampResult(result.requestId, result.txid);
+    storeTimestampResult(requestId, result.txid);
 
     return new Response(successPage(), {
       status: 200,
@@ -115,53 +133,38 @@ export const GET: RequestHandler = async ({ url }) => {
 };
 
 /**
- * Parse IdentityUpdateResponse and extract requestId and txid
+ * Parse GenericRequest response envelope and extract txid
  */
-function parseIdentityUpdateResponse(responseData: string): { requestId: string; txid: string } | null {
+function parseIdentityUpdateResponse(responseData: string): { txid: string } | null {
   try {
-    let response: InstanceType<typeof IdentityUpdateResponse>;
+    let response: GenericRequest;
 
-    if (responseData.startsWith('verusid://')) {
-      response = IdentityUpdateResponse.fromWalletDeeplinkUri(responseData);
+    if (responseData.startsWith('verus://') || responseData.includes('://')) {
+      response = GenericRequest.fromWalletDeeplinkUri(responseData);
     } else {
-      response = IdentityUpdateResponse.fromQrString(responseData);
+      response = GenericRequest.fromQrString(responseData);
     }
 
-    // Extract requestId from response details
-    const details = response.details;
-    if (!details) {
-      console.error('No details in response');
+    // Extract IdentityUpdateResponseDetails from the first detail
+    const detail = response.details[0];
+    if (!(detail instanceof IdentityUpdateResponseOrdinalVDXFObject)) {
+      console.error('Response does not contain identity update response');
       return null;
     }
 
-    // Get requestId - convert from BigNumber to i-address
-    const requestIdBN = (details as any).requestid;
-    if (!requestIdBN) {
-      console.error('No requestId in response');
-      return null;
-    }
-
-    // Get txid from response
-    const txidBuffer = (details as any).txid;
+    const responseDetails = detail.data as IdentityUpdateResponseDetails;
+    const txidBuffer = responseDetails.txid;
     if (!txidBuffer) {
       console.error('No txid in response');
       return null;
     }
 
-    // Convert txid buffer to hex string (reversed for display)
-    const txid = Buffer.from(txidBuffer).reverse().toString('hex');
+    // txid is stored in natural order, reverse for display
+    const txid = Buffer.from(txidBuffer as unknown as Uint8Array).reverse().toString('hex');
 
-    // Convert requestId BigNumber to i-address
-    // This needs to match how we generated it
-    const requestIdBuffer = requestIdBN.toBuffer('le', 20);
-    const versionByte = Buffer.from([102]);
-    // @ts-ignore
-    const bs58check = require('bs58check');
-    const requestId = bs58check.encode(Buffer.concat([versionByte, requestIdBuffer]));
-
-    return { requestId, txid };
+    return { txid };
   } catch (err) {
-    console.error('Error parsing IdentityUpdateResponse:', err);
+    console.error('Error parsing GenericRequest response:', err);
     return null;
   }
 }

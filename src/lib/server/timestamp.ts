@@ -1,8 +1,8 @@
 /**
  * Timestamp Helpers (Server-Side Only)
  *
- * Handles IdentityUpdateRequest creation for timestamp flow.
- * Follows the same pattern as auth.ts.
+ * Creates signed identity update requests for on-chain timestamp storage.
+ * Uses the GenericRequest pattern for wallet compatibility.
  */
 
 import { VerusIdInterface } from 'verusid-ts-client';
@@ -10,23 +10,23 @@ import { randomBytes } from 'crypto';
 // @ts-ignore - no types available
 import bs58check from 'bs58check';
 import {
-  IdentityUpdateRequest,
   IdentityUpdateRequestDetails,
-  PartialIdentity,
-  ResponseUri,
-  VerusIDSignature,
-  IDENTITY_AUTH_SIG_VDXF_KEY,
-  IdentityID,
+  GenericRequest,
+  IdentityUpdateRequestOrdinalVDXFObject,
+  VerifiableSignatureData,
+  CompactIAddressObject,
+  ResponseURI,
 } from 'verus-typescript-primitives';
-import { BigNumber } from 'verus-typescript-primitives';
+// @ts-ignore - no types available
+import { BN } from 'bn.js';
 import { env } from '$env/dynamic/private';
 import { VERUS_RPC } from '../config';
 import { getIdentity } from './verus';
 import { buildTimestampContentMap, type CreateTimestampInput } from '../vdxf';
 
 // Environment variables
-const SERVICE_IDENTITY_NAME = env.SERVICE_IDENTITY_NAME || 'testidx@';
 const SERVICE_IDENTITY_WIF = env.SERVICE_IDENTITY_WIF || '';
+const SERVICE_IDENTITY_IADDRESS = env.SERVICE_IDENTITY_IADDRESS || '';
 
 // Chain IDs
 const CHAIN_IDS = {
@@ -47,8 +47,9 @@ function getVerusIdInterface(): VerusIdInterface {
  */
 function generateRandomIAddress(): string {
   const hash = randomBytes(20);
-  const versionByte = Buffer.from([102]) as unknown as Uint8Array;
-  const payload = Buffer.concat([versionByte, hash as unknown as Uint8Array]);
+  const payload = new Uint8Array(21);
+  payload[0] = 102; // i-address version byte
+  payload.set(hash, 1);
   return bs58check.encode(payload) as string;
 }
 
@@ -108,77 +109,61 @@ export async function createTimestampRequest(
   if (!SERVICE_IDENTITY_WIF) {
     throw new Error('SERVICE_IDENTITY_WIF not configured');
   }
-
-  const verusId = getVerusIdInterface();
-
-  // 1. Get service identity i-address (needed for signingid)
-  const serviceIdentityInfo = await getIdentity(SERVICE_IDENTITY_NAME);
-  const serviceIdentityAddress = serviceIdentityInfo.identity.identityaddress;
-
-  // 2. Get user identity info - use identity.name and identity.parent directly
-  const identityInfo = await getIdentity(userIdentityAddress);
-  const name = identityInfo.identity.name;
-  const parent = identityInfo.identity.parent; // Already an i-address
-
-  // 3. Build contentmultimap
-  const contentmultimap = buildTimestampContentMap(timestampData);
-
-  // 4. Create PartialIdentity with just name, parent, and contentmultimap
-  const partialIdentity = PartialIdentity.fromJson({
-    name,
-    parent,
-    contentmultimap,
-  });
-
-  // 5. Generate request details
-  const requestId = generateRandomIAddress();
-  const createdAt = Math.floor(Date.now() / 1000);
-  const systemId = CHAIN_IDS[VERUS_RPC.chainId === 'vrsctest' ? 'testnet' : 'mainnet'];
-
-  // 6. Create IdentityUpdateRequestDetails
-  const requestDetails = new IdentityUpdateRequestDetails({
-    requestid: new BigNumber(Buffer.from(bs58check.decode(requestId)).slice(1)),
-    createdat: new BigNumber(createdAt),
-    identity: partialIdentity,
-    systemid: IdentityID.fromAddress(systemId),
-    responseuris: [ResponseUri.fromUriString(callbackUrl, ResponseUri.TYPE_REDIRECT)],
-  });
-
-  // Enable testnet flag if on testnet
-  if (VERUS_RPC.chainId === 'vrsctest') {
-    requestDetails.toggleIsTestnet();
+  if (!SERVICE_IDENTITY_IADDRESS) {
+    throw new Error('SERVICE_IDENTITY_IADDRESS not configured');
   }
 
-  // 7. Create the envelope
-  const request = new IdentityUpdateRequest({
-    details: requestDetails,
-    systemid: IdentityID.fromAddress(systemId),
+  const chainId = CHAIN_IDS[VERUS_RPC.chainId === 'vrsctest' ? 'testnet' : 'mainnet'];
+  const isTestnet = VERUS_RPC.chainId === 'vrsctest';
+  const verusId = getVerusIdInterface();
+
+  const requestId = generateRandomIAddress();
+
+  // Get user identity info (name + parent needed for the update)
+  const identityInfo = await getIdentity(userIdentityAddress);
+  const name = identityInfo.identity.name;
+  const parent = identityInfo.identity.parent;
+
+  // Build contentmultimap
+  const contentmultimap = buildTimestampContentMap(timestampData);
+
+  // Build identity update details from CLI-style JSON
+  const details = IdentityUpdateRequestDetails.fromCLIJson(
+    { name, parent, contentmultimap },
+    { requestid: CompactIAddressObject.fromAddress(requestId).toJson() },
+  );
+
+  // Include requestId in callback URL for matching
+  const callbackWithRequestId = `${callbackUrl}?requestId=${requestId}`;
+
+  // Build response URIs
+  const responseUris = [
+    ResponseURI.fromUriString(callbackWithRequestId, ResponseURI.TYPE_REDIRECT),
+  ];
+
+  // Create GenericRequest with IdentityUpdateRequestOrdinalVDXFObject
+  const request = new GenericRequest({
+    details: [
+      new IdentityUpdateRequestOrdinalVDXFObject({ data: details }),
+    ],
+    createdAt: new BN(Math.floor(Date.now() / 1000)),
+    responseURIs: responseUris,
   });
 
-  // 8. Sign with service identity
-  // Get the hash to sign (pass as Buffer for signHashOffline)
-  const blockHeight = 0; // Current block height not needed for request signing
-  const hashToSign = request.getDetailsHash(blockHeight);
+  // Initialize signature metadata
+  request.signature = new VerifiableSignatureData({
+    systemID: CompactIAddressObject.fromAddress(chainId),
+    identityID: CompactIAddressObject.fromAddress(SERVICE_IDENTITY_IADDRESS),
+  });
 
-  // Sign using VerusIdInterface - pass hash as Buffer
-  const signatureBase64 = await verusId.signHash(
-    SERVICE_IDENTITY_NAME,
-    hashToSign, // Pass as Buffer
-    SERVICE_IDENTITY_WIF
-  );
+  if (isTestnet) {
+    request.setIsTestnet();
+  }
 
-  // Create VerusIDSignature from the base64 signature
-  const signature = new VerusIDSignature(
-    { signature: signatureBase64 },
-    IDENTITY_AUTH_SIG_VDXF_KEY
-  );
+  // Sign the request - library handles identity validation and height fetching
+  const signedRequest = await verusId.signGenericRequest(request, SERVICE_IDENTITY_WIF);
 
-  // Set signature on request
-  request.signature = signature;
-  request.signingid = IdentityID.fromAddress(serviceIdentityAddress);
-  request.setSigned();
-
-  // 9. Store pending request
+  // Store pending request
   pendingTimestampRequests.set(requestId, {
     requestId,
     userIdentity: userIdentityAddress,
@@ -187,11 +172,10 @@ export async function createTimestampRequest(
     expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
   });
 
-  // 10. Return QR and deeplink
   return {
     requestId,
-    qrString: request.toQrString(),
-    deeplinkUri: request.toWalletDeeplinkUri(),
+    qrString: signedRequest.toWalletDeeplinkUri(),
+    deeplinkUri: signedRequest.toWalletDeeplinkUri(),
   };
 }
 
@@ -264,5 +248,5 @@ export function getPendingTimestampRequest(requestId: string) {
  * Check if timestamp service is configured
  */
 export function isTimestampConfigured(): boolean {
-  return !!SERVICE_IDENTITY_WIF && SERVICE_IDENTITY_WIF !== 'YOUR_WIF_HERE';
+  return !!SERVICE_IDENTITY_WIF && SERVICE_IDENTITY_WIF !== 'YOUR_WIF_HERE' && !!SERVICE_IDENTITY_IADDRESS;
 }

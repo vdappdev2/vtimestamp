@@ -179,10 +179,11 @@
 
       const data = await res.json();
 
-      // Generate QR code
+      // Generate QR code - use low error correction for large GenericRequest data
       qrDataUrl = await QRCode.toDataURL(data.deeplinkUri, {
         width: 256,
         margin: 2,
+        errorCorrectionLevel: 'L',
         color: { dark: '#000000', light: '#ffffff' },
       });
 

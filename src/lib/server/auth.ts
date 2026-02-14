@@ -26,6 +26,7 @@ import { getIdentity } from './verus';
 // Environment variables (restart server after changing .env)
 const SERVICE_IDENTITY_NAME = env.SERVICE_IDENTITY_NAME || 'testidx@';
 const SERVICE_IDENTITY_WIF = env.SERVICE_IDENTITY_WIF || '';
+const SERVICE_IDENTITY_IADDRESS = env.SERVICE_IDENTITY_IADDRESS || '';
 
 // Chain IDs
 const CHAIN_IDS = {
@@ -140,9 +141,9 @@ export async function createLoginRequest(callbackUrl: string): Promise<{
     salt,
   });
 
-  // Create and sign the login consent request
+  // Create and sign the login consent request (signing_id must be an i-address)
   const request = await verusId.createLoginConsentRequest(
-    SERVICE_IDENTITY_NAME,
+    SERVICE_IDENTITY_IADDRESS,
     challenge,
     SERVICE_IDENTITY_WIF
   );
@@ -264,7 +265,7 @@ export async function verifyLoginResponse(responseData: string): Promise<{
  * Check if the service identity WIF is configured
  */
 export function isAuthConfigured(): boolean {
-  return !!SERVICE_IDENTITY_WIF && SERVICE_IDENTITY_WIF !== 'YOUR_WIF_HERE';
+  return !!SERVICE_IDENTITY_WIF && SERVICE_IDENTITY_WIF !== 'YOUR_WIF_HERE' && !!SERVICE_IDENTITY_IADDRESS;
 }
 
 /**
