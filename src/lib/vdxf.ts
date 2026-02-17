@@ -148,7 +148,7 @@ export function parseHistoryEntry(entry: IdentityHistoryEntry): TimestampRecord 
   if (!contentmultimap) return null;
 
   // Look for our timestamp proof outer key
-  const entries = contentmultimap[VDXF_KEYS.timestampProof];
+  const entries = contentmultimap[VDXF_KEYS.proofBasic];
   if (!entries || entries.length === 0) return null;
 
   const data = parseTimestampData(entries);
@@ -261,7 +261,7 @@ export function buildTimestampContentMap(input: CreateTimestampInput): ContentMu
   }
 
   return {
-    [VDXF_KEYS.timestampProof]: entries,
+    [VDXF_KEYS.proofBasic]: entries,
   };
 }
 

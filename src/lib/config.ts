@@ -48,28 +48,26 @@ export const VERUS_RPC = {
  *
  * These are the VDXF keys (i-addresses) used for storing timestamp data.
  * Using i-addresses instead of friendly names for consistency.
- *
- * Full key reference: documentation/vtimestamp_vdxf_keys.md
  */
 
-// Testnet VDXF Keys (testidx.vrsc:: namespace)
+// Testnet VDXF Keys (testidx.vrsctest:: namespace)
 const TESTNET_VDXF = {
-  // Outer key: testidx.vrsc::timestamp.proof
-  timestampProof: 'iLeir1axD1rL5U8Rr2bXXatn5WxXZwZMhJ',
+  // Outer key: testidx.vrsctest::proof.basic
+  proofBasic: 'i6UD4js3jqyjz9Mttmbk2Sh4eCuwLKPLyQ',
 
   // Labels (inside DataDescriptor)
   labels: {
-    sha256: 'iQtu5fBXoin42zMHAjKQaQsydV2qREko3s',      // .sha256
-    title: 'i5qsAsbxfCUWurxW2uXsemrxumu1gtKoBS',       // .title
-    description: 'iHkJUXJfk74wr7ic2pmNkFj7TGvmoCNqcv', // .description
-    filename: 'iEyMgwmBuxc5Bhb5H5d8oWHs588Bng3UQ4',    // .filename
-    filesize: 'iLpPqXLkyk4ktPKtSFtKBzEwCDWXwQxVVw',   // .filesize
+    sha256: 'iBCkvv7KC18xd3P164Cvw1pxpLo5FyGEtm',      // .sha256
+    title: 'iHXGu1nW4jQoeooBHPGE58qQGf9wMakEtj',       // .title
+    description: 'iP1PCTTHPpktP26xTEu1BuwENWMHQaia4D', // .description
+    filename: 'i4xgBqX9btMX8tnAjsyVFrgSLnigxPwBw5',    // .filename
+    filesize: 'iRz2tyZZEwmrxRPSrwN8UTAC8g5KyVkBiE',   // .filesize
   },
 };
 
 // Mainnet VDXF Keys (TBD - will use different namespace)
 const MAINNET_VDXF = {
-  timestampProof: '', // TBD
+  proofBasic: '', // TBD
   labels: {
     sha256: '',
     title: '',
@@ -116,6 +114,6 @@ export const UI_CONFIG = {
 export const APP_META = {
   name: 'vtimestamp',
   description: 'Decentralized timestamp service on Verus blockchain',
-  version: '0.3.0',
+  version: '0.4.0',
   network: CURRENT_NETWORK,
 };
