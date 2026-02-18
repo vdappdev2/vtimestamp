@@ -65,15 +65,18 @@ const TESTNET_VDXF = {
   },
 };
 
-// Mainnet VDXF Keys (TBD - will use different namespace)
+// Mainnet VDXF Keys (vtimestamp.vrsc:: namespace)
 const MAINNET_VDXF = {
-  proofBasic: '', // TBD
+  // Outer key: vtimestamp.vrsc::proof.basic
+  proofBasic: 'iJvkQ3uTKmRoFiE3rtP8YJxryLBKu8enmX',
+
+  // Labels (inside DataDescriptor)
   labels: {
-    sha256: '',
-    title: '',
-    description: '',
-    filename: '',
-    filesize: '',
+    sha256: 'iPRekBwQwFxNHf6mE68n8i2iXEnVdk1hw8',      // .sha256
+    title: 'iJx4aJf4SRByyNAi4Z93FC7QNaysyU5mdP',       // .title
+    description: 'iS8HnXSHWPL7GLkxYS4SpC7QW2Bnyp93T2', // .description
+    filename: 'iBTcwxUDgvqGXGMC26U52522HrsXC8ggoC',    // .filename
+    filesize: 'iHBnDKDyKbXeizg322cxLUps7Uodc1udF4',   // .filesize
   },
 };
 
@@ -114,6 +117,6 @@ export const UI_CONFIG = {
 export const APP_META = {
   name: 'vtimestamp',
   description: 'Decentralized timestamp service on Verus blockchain',
-  version: '0.4.0',
+  version: '0.5.0',
   network: CURRENT_NETWORK,
 };
