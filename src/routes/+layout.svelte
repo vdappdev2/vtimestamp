@@ -1,5 +1,6 @@
 <script lang="ts">
 	import '../app.css';
+	import { afterNavigate } from '$app/navigation';
 	import LoginButton from '$lib/components/LoginButton.svelte';
 	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
 	import { isLoggedIn } from '$lib/stores/session';
@@ -9,6 +10,30 @@
 
 	const isTestnet = CURRENT_NETWORK === 'testnet';
 	const switchLabel = isTestnet ? 'Switch to Mainnet' : 'Switch to Testnet';
+
+	function addCopyButtons() {
+		document.querySelectorAll('.code-block').forEach((block) => {
+			if (block.querySelector('.copy-btn')) return;
+			const wrapper = block as HTMLElement;
+			wrapper.style.position = 'relative';
+			const btn = document.createElement('button');
+			btn.className = 'copy-btn';
+			btn.textContent = 'Copy';
+			btn.addEventListener('click', async () => {
+				const pre = block.querySelector('pre');
+				const text = (pre || block).textContent || '';
+				await navigator.clipboard.writeText(text.trim());
+				btn.textContent = 'Copied!';
+				setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+			});
+			wrapper.appendChild(btn);
+		});
+	}
+
+	afterNavigate(() => {
+		// Small delay to ensure DOM is rendered
+		setTimeout(addCopyButtons, 50);
+	});
 </script>
 
 <svelte:head>
@@ -86,17 +111,62 @@
 	</main>
 
 	<!-- Footer -->
-	<footer class="bg-surface border-t border-theme py-6">
-		<div class="max-w-6xl mx-auto px-4 text-center text-secondary text-sm">
-			<p>vtimestamp - Decentralized timestamps on <a href="https://verus.io" class="text-primary hover:underline" target="_blank" rel="noopener">Verus</a></p>
-			<p class="mt-2 text-xs">Proofs are stored on your VerusID. This service does not store your documents.</p>
-			{#if SWITCH_NETWORK_URL}
-				<p class="mt-3">
+	<footer class="bg-surface border-t border-theme py-10">
+		<div class="max-w-6xl mx-auto px-4">
+			<!-- Footer heading -->
+			<p class="text-secondary text-sm mb-6">vtimestamp — Decentralized timestamps on <a href="https://verus.io" class="text-primary hover:underline" target="_blank" rel="noopener">Verus</a></p>
+
+			<!-- Footer link columns -->
+			<div class="grid grid-cols-2 md:grid-cols-3 gap-8 mb-8">
+				<!-- Learn -->
+				<div>
+					<h4 class="text-xs font-semibold uppercase tracking-wider text-secondary mb-3">Learn</h4>
+					<ul class="space-y-2">
+						<li><a href="/how-it-works" class="text-sm footer-link">How It Works</a></li>
+						<li><a href="/compare" class="text-sm footer-link">Compare</a></li>
+						<li><a href="/use-cases" class="text-sm footer-link">Use Cases</a></li>
+						<li><a href="/faq" class="text-sm footer-link">FAQ</a></li>
+					</ul>
+				</div>
+
+				<!-- Use -->
+				<div>
+					<h4 class="text-xs font-semibold uppercase tracking-wider text-secondary mb-3">Use</h4>
+					<ul class="space-y-2">
+						<li><a href="/verify" class="text-sm footer-link">Verify</a></li>
+						<li><a href="/create" class="text-sm footer-link">Create</a></li>
+						<li><a href="/dashboard" class="text-sm footer-link">Dashboard</a></li>
+					</ul>
+				</div>
+
+				<!-- Build -->
+				<div>
+					<h4 class="text-xs font-semibold uppercase tracking-wider text-secondary mb-3">Build</h4>
+					<ul class="space-y-2">
+						<li><a href="https://github.com/vdappdev2/vtimestamp" class="text-sm footer-link" target="_blank" rel="noopener">GitHub</a></li>
+						<li><a href="/developers" class="text-sm footer-link">Developers</a></li>
+						<li><a href="https://www.npmjs.com/package/vtimestamp-mcp" class="text-sm footer-link" target="_blank" rel="noopener">MCP Server (npm)</a></li>
+					</ul>
+				</div>
+			</div>
+
+			<!-- Bottom row -->
+			<div class="border-t border-theme pt-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+				<div class="flex flex-wrap items-center gap-3 text-xs">
+					<a href="/about" class="footer-link">About</a>
+					<span class="text-secondary">&middot;</span>
+					<span class="text-secondary">MIT License</span>
+					<span class="text-secondary">&middot;</span>
+					<a href="https://verus.io" class="footer-link" target="_blank" rel="noopener">Verus.io</a>
+				</div>
+				{#if SWITCH_NETWORK_URL}
 					<a href={SWITCH_NETWORK_URL} class="network-switch-link">
 						{switchLabel} &rarr;
 					</a>
-				</p>
-			{/if}
+				{/if}
+			</div>
+
+			<p class="mt-4 text-xs text-secondary">Proofs are stored on your VerusID. This service does not store your documents.</p>
 		</div>
 	</footer>
 </div>
