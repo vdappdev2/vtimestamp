@@ -1,0 +1,29 @@
+# vtimestamp
+
+> Decentralized document timestamping service built on the Verus blockchain.
+> Users hash documents locally (SHA-256), store the hash on their VerusID
+> (a self-sovereign blockchain identity), and anyone can verify the timestamp
+> without an account. Documents never leave the user's device.
+
+vtimestamp creates cryptographic proof that a document existed at a specific
+point in time. The proof is permanently stored on the Verus blockchain, tied
+to the user's VerusID. Unlike centralized timestamping services, the proof
+survives even if vtimestamp itself shuts down.
+
+## Core Pages
+- [How It Works](https://vtimestamp.com/how-it-works): Technical explanation of the timestamping and verification flow
+- [Compare](https://vtimestamp.com/compare): Detailed comparison vs other blockchain and traditional timestamping methods
+- [Use Cases](https://vtimestamp.com/use-cases): Applications for IP, legal, research, creative work, and compliance
+- [FAQ](https://vtimestamp.com/faq): Common questions about privacy, cost, verification, and trust model
+- [Developer Docs](https://vtimestamp.com/developers): VDXF key reference, on-chain data structure, CLI verification, MCP server integration
+
+## Tools
+- [Verify a Timestamp](https://vtimestamp.com/verify): Public verification tool (no login required)
+- [Create a Timestamp](https://vtimestamp.com/create): Create a new timestamp (requires VerusID login)
+
+## Optional
+- [About](https://vtimestamp.com/about): Mission, background, and open-source info
+- [GitHub](https://github.com/vdappdev2/vtimestamp): Source code (MIT license)
+- [MCP Server (read)](https://www.npmjs.com/package/vtimestamp-mcp): AI agent integration for verifying timestamps
+- [MCP Server (write)](https://www.npmjs.com/package/vtimestamp-mcp-write): AI agent integration for creating timestamps
+- [Full Content](https://vtimestamp.com/llms-full.txt): Complete site content in a single document

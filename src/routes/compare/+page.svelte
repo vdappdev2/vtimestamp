@@ -9,6 +9,19 @@
 	<meta name="twitter:card" content="summary" />
 	<meta name="twitter:title" content="Blockchain Timestamping Compared: vtimestamp vs Alternatives" />
 	<meta name="twitter:description" content="Detailed comparison of blockchain timestamping tools and chains. vtimestamp vs traditional notary, centralized services, Bitcoin OP_RETURN, Ethereum, Solana, Cardano, Hedera, and Sui." />
+	{@html `<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Blockchain Timestamping Compared: vtimestamp vs Alternatives",
+  "description": "Detailed comparison of blockchain timestamping tools and chains. vtimestamp vs traditional notary, centralized services, Bitcoin OP_RETURN, Ethereum, Solana, Cardano, Hedera, and Sui.",
+  "url": "https://vtimestamp.com/compare",
+  "author": { "@type": "Person", "name": "vdappdev2" },
+  "publisher": { "@type": "Organization", "name": "vtimestamp", "url": "https://vtimestamp.com" },
+  "datePublished": "2026-03-03",
+  "dateModified": "2026-03-03"
+}
+</script>`}
 </svelte:head>
 
 <div class="content-page-wide">

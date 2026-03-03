@@ -9,6 +9,19 @@
 	<meta name="twitter:card" content="summary" />
 	<meta name="twitter:title" content="How Blockchain Timestamping Works | vtimestamp" />
 	<meta name="twitter:description" content="Learn how vtimestamp creates and verifies cryptographic proof that documents existed at a specific time." />
+	{@html `<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "How Blockchain Timestamping Works",
+  "description": "Learn how vtimestamp creates and verifies cryptographic proof that documents existed at a specific time. SHA-256 hashing, VerusID signing, and permissionless verification explained.",
+  "url": "https://vtimestamp.com/how-it-works",
+  "author": { "@type": "Person", "name": "vdappdev2" },
+  "publisher": { "@type": "Organization", "name": "vtimestamp", "url": "https://vtimestamp.com" },
+  "datePublished": "2026-03-03",
+  "dateModified": "2026-03-03"
+}
+</script>`}
 </svelte:head>
 
 <div class="content-page">

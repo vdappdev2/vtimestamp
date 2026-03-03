@@ -2,6 +2,40 @@
 	// Landing page - vtimestamp MVP
 </script>
 
+<svelte:head>
+	<title>vtimestamp — Decentralized Document Timestamping on Verus</title>
+	<meta name="description" content="Prove your documents existed at a specific moment in time. Free, decentralized, privacy-first timestamps on the Verus blockchain. Your files never leave your device." />
+	<link rel="canonical" href="https://vtimestamp.com/" />
+	<meta property="og:title" content="vtimestamp — Decentralized Document Timestamping" />
+	<meta property="og:description" content="Prove your documents existed at a specific moment in time. Free, decentralized, privacy-first timestamps on the Verus blockchain." />
+	<meta property="og:url" content="https://vtimestamp.com/" />
+	<meta property="og:type" content="website" />
+	<meta name="twitter:card" content="summary" />
+	<meta name="twitter:title" content="vtimestamp — Decentralized Document Timestamping" />
+	<meta name="twitter:description" content="Prove your documents existed at a specific moment in time. Free, decentralized, privacy-first timestamps on the Verus blockchain." />
+	{@html `<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "vtimestamp",
+  "description": "Decentralized document timestamping on Verus blockchain. Prove any document existed at a specific point in time without uploading it. Privacy-first — your files never leave your device.",
+  "applicationCategory": "BlockchainApplication",
+  "operatingSystem": "Web",
+  "url": "https://vtimestamp.com",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "vdappdev2"
+  },
+  "license": "https://opensource.org/licenses/MIT"
+}
+</script>`}
+</svelte:head>
+
 <div class="max-w-4xl mx-auto px-4 py-16">
 	<!-- Hero Section -->
 	<section class="text-center mb-16">

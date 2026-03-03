@@ -222,6 +222,11 @@
   }
 </script>
 
+<svelte:head>
+	<title>Create a Timestamp | vtimestamp</title>
+	<meta name="description" content="Create a decentralized timestamp for your document on the Verus blockchain. Hash your file locally, sign with your VerusID, and store the proof permanently." />
+</svelte:head>
+
 <div class="max-w-2xl mx-auto px-4 py-8">
   <h1 class="text-3xl font-bold mb-6">Create Timestamp</h1>
 

@@ -9,6 +9,19 @@
 	<meta name="twitter:card" content="summary" />
 	<meta name="twitter:title" content="Developer Documentation — vtimestamp API & VDXF Reference" />
 	<meta name="twitter:description" content="Technical documentation for vtimestamp: VDXF key reference, on-chain data structure, CLI verification commands, and MCP server integration." />
+	{@html `<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Developer Documentation — vtimestamp API & VDXF Reference",
+  "description": "Technical documentation for vtimestamp: VDXF key reference, on-chain data structure, CLI verification commands, and MCP server integration for AI agents.",
+  "url": "https://vtimestamp.com/developers",
+  "author": { "@type": "Person", "name": "vdappdev2" },
+  "publisher": { "@type": "Organization", "name": "vtimestamp", "url": "https://vtimestamp.com" },
+  "datePublished": "2026-03-03",
+  "dateModified": "2026-03-03"
+}
+</script>`}
 </svelte:head>
 
 <div class="content-page-wide">

@@ -145,6 +145,11 @@
   let canVerify = $derived(computedHash && identity.trim() && !isHashing && !isVerifying);
 </script>
 
+<svelte:head>
+	<title>Verify a Timestamp | vtimestamp</title>
+	<meta name="description" content="Verify that a document was timestamped on the Verus blockchain. Upload a file or paste text, enter a VerusID, and check the proof. No login required." />
+</svelte:head>
+
 <div class="max-w-2xl mx-auto px-4 py-8">
   <h1 class="text-3xl font-bold mb-6">Verify Timestamp</h1>
 

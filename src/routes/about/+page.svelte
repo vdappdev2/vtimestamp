@@ -9,6 +9,19 @@
 	<meta name="twitter:card" content="summary" />
 	<meta name="twitter:title" content="About vtimestamp — Decentralized Document Timestamping" />
 	<meta name="twitter:description" content="vtimestamp is an open-source, decentralized document timestamping service built on the Verus blockchain." />
+	{@html `<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "About vtimestamp — Decentralized Document Timestamping",
+  "description": "vtimestamp is an open-source, decentralized document timestamping service built on the Verus blockchain. Privacy-first, identity-bound, and permanently verifiable.",
+  "url": "https://vtimestamp.com/about",
+  "author": { "@type": "Person", "name": "vdappdev2" },
+  "publisher": { "@type": "Organization", "name": "vtimestamp", "url": "https://vtimestamp.com" },
+  "datePublished": "2026-03-03",
+  "dateModified": "2026-03-03"
+}
+</script>`}
 </svelte:head>
 
 <div class="content-page">

@@ -36,10 +36,6 @@
 	});
 </script>
 
-<svelte:head>
-	<title>vtimestamp - Decentralized Timestamp Service</title>
-	<meta name="description" content="Prove your documents existed at a specific moment in time. Decentralized, immutable timestamps on Verus blockchain." />
-</svelte:head>
 
 <div class="min-h-screen flex flex-col">
 	<!-- Header -->

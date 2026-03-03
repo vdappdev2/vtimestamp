@@ -9,6 +9,78 @@
 	<meta name="twitter:card" content="summary" />
 	<meta name="twitter:title" content="FAQ — Document Timestamping Questions Answered | vtimestamp" />
 	<meta name="twitter:description" content="Common questions about vtimestamp: privacy, cost, verification, VerusID, SHA-256 hashing, and how blockchain timestamping works." />
+	{@html `<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is document timestamping?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Document timestamping is the process of creating cryptographic proof that a specific piece of data existed at a specific point in time. The proof is a SHA-256 hash of your document, recorded on a blockchain with a consensus-verified timestamp."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is vtimestamp?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "vtimestamp is a free, open-source, decentralized timestamping service built on the Verus blockchain. It lets you prove that a document, file, or piece of text existed at a specific moment in time. Your documents never leave your device — only a hash is published."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Are my documents uploaded to the blockchain?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Your documents never leave your device. vtimestamp computes a SHA-256 hash of your file or text entirely in your browser using the Web Crypto API. Only this hash (a 64-character string) is stored on the blockchain."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can a timestamp be faked or backdated?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. The block time is set by blockchain consensus — you can't insert data into a past block. Each identity update is a separate, immutable transaction. SHA-256 is collision-resistant, so no one can produce a different document with the same hash."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How much does it cost?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "vtimestamp itself is free. The only cost is the Verus blockchain transaction fee of approximately 0.0001 VRSC per timestamp, paid from your wallet when you approve the transaction."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What happens if vtimestamp shuts down?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Your timestamps survive. They're stored on the Verus blockchain, not on vtimestamp's servers. Anyone can verify them using a Verus node and the getidentityhistory RPC command."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is a VerusID?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A VerusID is a self-sovereign identity on the Verus blockchain. It's a human-readable name (like alice@) that you own and control — no company or government manages it for you. Your VerusID is used to sign timestamps."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I verify without the vtimestamp website?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. You can use the Verus CLI to query any identity's history directly. Run verus getidentityhistory to see all updates, then look for entries with the proof.basic VDXF key."
+      }
+    }
+  ]
+}
+</script>`}
 </svelte:head>
 
 <div class="content-page">

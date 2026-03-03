@@ -9,6 +9,19 @@
 	<meta name="twitter:card" content="summary" />
 	<meta name="twitter:title" content="Use Cases — Who Needs Blockchain Timestamping?" />
 	<meta name="twitter:description" content="How blockchain timestamping is used for intellectual property, legal documents, research data, creative work, and compliance." />
+	{@html `<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Use Cases — Who Needs Blockchain Timestamping?",
+  "description": "How blockchain timestamping is used for intellectual property, legal documents, research data, creative work, and compliance. Real scenarios where proof of existence matters.",
+  "url": "https://vtimestamp.com/use-cases",
+  "author": { "@type": "Person", "name": "vdappdev2" },
+  "publisher": { "@type": "Organization", "name": "vtimestamp", "url": "https://vtimestamp.com" },
+  "datePublished": "2026-03-03",
+  "dateModified": "2026-03-03"
+}
+</script>`}
 </svelte:head>
 
 <div class="content-page">
