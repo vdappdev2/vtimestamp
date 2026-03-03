@@ -22,7 +22,25 @@
 		<nav class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
 			<!-- Logo + Network Badge -->
 			<div class="flex items-center gap-2">
-				<a href="/" class="text-xl font-semibold text-primary">
+				<a href="/" class="flex items-center gap-2 text-xl font-semibold text-primary no-underline">
+					<svg viewBox="0 0 100 100" class="w-8 h-8" aria-hidden="true">
+						<circle cx="50" cy="50" r="44" fill="none" stroke="var(--color-primary)" stroke-width="2.5"/>
+						<line x1="50" y1="9" x2="50" y2="17" stroke="var(--color-primary)" stroke-width="2" stroke-linecap="round"/>
+						<line x1="91" y1="50" x2="83" y2="50" stroke="var(--color-primary)" stroke-width="2" stroke-linecap="round"/>
+						<line x1="50" y1="91" x2="50" y2="83" stroke="var(--color-primary)" stroke-width="2" stroke-linecap="round"/>
+						<line x1="9" y1="50" x2="17" y2="50" stroke="var(--color-primary)" stroke-width="2" stroke-linecap="round"/>
+						<line x1="72" y1="13.4" x2="69.2" y2="18.2" stroke="var(--color-primary)" stroke-width="1.2" stroke-linecap="round"/>
+						<line x1="86.6" y1="28" x2="81.8" y2="30.8" stroke="var(--color-primary)" stroke-width="1.2" stroke-linecap="round"/>
+						<line x1="86.6" y1="72" x2="81.8" y2="69.2" stroke="var(--color-primary)" stroke-width="1.2" stroke-linecap="round"/>
+						<line x1="72" y1="86.6" x2="69.2" y2="81.8" stroke="var(--color-primary)" stroke-width="1.2" stroke-linecap="round"/>
+						<line x1="28" y1="86.6" x2="30.8" y2="81.8" stroke="var(--color-primary)" stroke-width="1.2" stroke-linecap="round"/>
+						<line x1="13.4" y1="72" x2="18.2" y2="69.2" stroke="var(--color-primary)" stroke-width="1.2" stroke-linecap="round"/>
+						<line x1="13.4" y1="28" x2="18.2" y2="30.8" stroke="var(--color-primary)" stroke-width="1.2" stroke-linecap="round"/>
+						<line x1="28" y1="13.4" x2="30.8" y2="18.2" stroke="var(--color-primary)" stroke-width="1.2" stroke-linecap="round"/>
+						<line x1="50" y1="50" x2="35" y2="24" stroke="var(--color-text-primary)" stroke-width="4" stroke-linecap="round"/>
+						<line x1="50" y1="50" x2="65" y2="24" stroke="var(--color-text-primary)" stroke-width="3" stroke-linecap="round"/>
+						<circle cx="50" cy="50" r="3.5" fill="var(--color-primary)"/>
+					</svg>
 					vtimestamp
 				</a>
 				<span class="network-badge" class:network-badge-testnet={isTestnet} class:network-badge-mainnet={!isTestnet}>
