@@ -151,8 +151,11 @@ export async function createTimestampRequest(
   });
 
   // Initialize signature metadata
+  // Note: Using default version (0) and no systemID to match wallet's expected format.
+  // If wallet is updated to support version=1 / FLAG_HAS_SYSTEM, add:
+  //   version: VerifiableSignatureData.DEFAULT_VERSION,
+  //   systemID: CompactIAddressObject.fromAddress(chainId),
   request.signature = new VerifiableSignatureData({
-    systemID: CompactIAddressObject.fromAddress(chainId),
     identityID: CompactIAddressObject.fromAddress(SERVICE_IDENTITY_IADDRESS),
   });
 
@@ -172,10 +175,14 @@ export async function createTimestampRequest(
     expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
   });
 
+  const deeplinkUri = signedRequest.toWalletDeeplinkUri();
+  console.log('[vtimestamp] deeplink URI:', deeplinkUri);
+  console.log('[vtimestamp] GenericRequest JSON:', JSON.stringify(signedRequest.toJson(), null, 2));
+
   return {
     requestId,
-    qrString: signedRequest.toWalletDeeplinkUri(),
-    deeplinkUri: signedRequest.toWalletDeeplinkUri(),
+    qrString: deeplinkUri,
+    deeplinkUri,
   };
 }
 
