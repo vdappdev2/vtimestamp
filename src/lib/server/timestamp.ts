@@ -176,8 +176,6 @@ export async function createTimestampRequest(
   });
 
   const deeplinkUri = signedRequest.toWalletDeeplinkUri();
-  console.log('[vtimestamp] deeplink URI:', deeplinkUri);
-  console.log('[vtimestamp] GenericRequest JSON:', JSON.stringify(signedRequest.toJson(), null, 2));
 
   return {
     requestId,
