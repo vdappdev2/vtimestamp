@@ -36,6 +36,14 @@
   "license": "https://opensource.org/licenses/MIT"
 }
 </script>`}
+	{@html `<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "vtimestamp",
+  "url": "https://vtimestamp.com"
+}
+</script>`}
 </svelte:head>
 
 <div class="max-w-4xl mx-auto px-4 py-16">
