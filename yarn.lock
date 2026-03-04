@@ -674,9 +674,9 @@ axobject-query@^4.1.0:
   integrity sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ==
 
 b4a@^1.0.1:
-  version "1.7.4"
-  resolved "https://registry.yarnpkg.com/b4a/-/b4a-1.7.4.tgz#0fdcb68cbc0224d267e3d0519c66419efc3416e2"
-  integrity sha512-u20zJLDaSWpxaZ+zaAkEIB2dZZ1o+DF4T/MRbmsvGp9nletHOyiai19OzX1fF8xUBYsO1bPXxODvcd0978pnug==
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/b4a/-/b4a-1.8.0.tgz#1ca3ba0edc9469aaabef5647e769a83d50180b1a"
+  integrity sha512-qRuSmNSkGQaHwNbM7J78Wwy+ghLEYF1zNrSeMxj4Kgw6y33O3mXcQ6Ie9fRvfU/YnxWkOchPXbaLb73TkIsfdg==
 
 base-x@^1.1.0:
   version "1.1.0"
@@ -774,12 +774,7 @@ bip66@^1.1.3:
   dependencies:
     safe-buffer "^5.0.1"
 
-bitcoin-ops@^1.3.0:
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/bitcoin-ops/-/bitcoin-ops-1.4.1.tgz#e45de620398e22fd4ca6023de43974ff42240278"
-  integrity sha512-pef6gxZFztEhaE9RY9HmWVmiIHqCb2OyS4HPKkpc6CIiiOa3Qmuoylxc5P2EkU3w+5eTSifI9SEZC88idAIGow==
-
-"bitcoin-ops@git+https://github.com/VerusCoin/bitcoin-ops":
+bitcoin-ops@^1.3.0, "bitcoin-ops@git+https://github.com/VerusCoin/bitcoin-ops":
   version "1.4.1"
   resolved "git+https://github.com/VerusCoin/bitcoin-ops#a5f8f56e658301bc39881d41740b3a0010530efd"
 
@@ -2015,8 +2010,7 @@ varuint-bitcoin@1.0.4:
 
 "verus-typescript-primitives@github:VerusCoin/verus-typescript-primitives":
   version "1.0.0"
-  uid "429f3ac42103da38fbd577ba7cd3fd2e74592b1c"
-  resolved "https://codeload.github.com/VerusCoin/verus-typescript-primitives/tar.gz/429f3ac42103da38fbd577ba7cd3fd2e74592b1c"
+  resolved "https://codeload.github.com/VerusCoin/verus-typescript-primitives/tar.gz/ac2f81222d5eba0c718cc18658e88ecaf85d6eef"
   dependencies:
     base64url "3.0.1"
     bech32 "2.0.0"
