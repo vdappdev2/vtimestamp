@@ -18,10 +18,11 @@
   "headline": "Developer Documentation — vtimestamp API & VDXF Reference",
   "description": "Technical documentation for vtimestamp: VDXF key reference, on-chain data structure, CLI verification commands, and MCP server integration for AI agents.",
   "url": "https://vtimestamp.com/developers",
-  "author": { "@type": "Person", "name": "vdappdev2" },
+  "image": "https://vtimestamp.com/og-image.png",
+  "author": { "@type": "Person", "name": "vdappdev2", "url": "https://github.com/vdappdev2" },
   "publisher": { "@type": "Organization", "name": "vtimestamp", "url": "https://vtimestamp.com" },
-  "datePublished": "2026-03-03",
-  "dateModified": "2026-03-03"
+  "datePublished": "2026-03-03T00:00:00+00:00",
+  "dateModified": "2026-03-03T00:00:00+00:00"
 }
 </script>`}
 </svelte:head>

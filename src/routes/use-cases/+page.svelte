@@ -18,10 +18,11 @@
   "headline": "Use Cases — Who Needs Blockchain Timestamping?",
   "description": "How blockchain timestamping is used for intellectual property, legal documents, research data, creative work, and compliance. Real scenarios where proof of existence matters.",
   "url": "https://vtimestamp.com/use-cases",
-  "author": { "@type": "Person", "name": "vdappdev2" },
+  "image": "https://vtimestamp.com/og-image.png",
+  "author": { "@type": "Person", "name": "vdappdev2", "url": "https://github.com/vdappdev2" },
   "publisher": { "@type": "Organization", "name": "vtimestamp", "url": "https://vtimestamp.com" },
-  "datePublished": "2026-03-03",
-  "dateModified": "2026-03-03"
+  "datePublished": "2026-03-03T00:00:00+00:00",
+  "dateModified": "2026-03-03T00:00:00+00:00"
 }
 </script>`}
 </svelte:head>

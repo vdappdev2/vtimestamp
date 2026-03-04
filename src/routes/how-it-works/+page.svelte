@@ -18,10 +18,11 @@
   "headline": "How Blockchain Timestamping Works",
   "description": "Learn how vtimestamp creates and verifies cryptographic proof that documents existed at a specific time. SHA-256 hashing, VerusID signing, and permissionless verification explained.",
   "url": "https://vtimestamp.com/how-it-works",
-  "author": { "@type": "Person", "name": "vdappdev2" },
+  "image": "https://vtimestamp.com/og-image.png",
+  "author": { "@type": "Person", "name": "vdappdev2", "url": "https://github.com/vdappdev2" },
   "publisher": { "@type": "Organization", "name": "vtimestamp", "url": "https://vtimestamp.com" },
-  "datePublished": "2026-03-03",
-  "dateModified": "2026-03-03"
+  "datePublished": "2026-03-03T00:00:00+00:00",
+  "dateModified": "2026-03-03T00:00:00+00:00"
 }
 </script>`}
 </svelte:head>
