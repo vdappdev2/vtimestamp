@@ -6,7 +6,9 @@
 	<meta property="og:description" content="vtimestamp is an open-source, decentralized document timestamping service built on the Verus blockchain. Privacy-first, identity-bound, and permanently verifiable." />
 	<meta property="og:url" content="https://vtimestamp.com/about" />
 	<meta property="og:type" content="website" />
-	<meta name="twitter:card" content="summary" />
+	<meta property="og:image" content="https://vtimestamp.com/og-image.png" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:image" content="https://vtimestamp.com/og-image.png" />
 	<meta name="twitter:title" content="About vtimestamp — Decentralized Document Timestamping" />
 	<meta name="twitter:description" content="vtimestamp is an open-source, decentralized document timestamping service built on the Verus blockchain." />
 	{@html `<script type="application/ld+json">

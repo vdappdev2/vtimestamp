@@ -10,7 +10,9 @@
 	<meta property="og:description" content="Prove your documents existed at a specific moment in time. Free, decentralized, privacy-first timestamps on the Verus blockchain." />
 	<meta property="og:url" content="https://vtimestamp.com/" />
 	<meta property="og:type" content="website" />
-	<meta name="twitter:card" content="summary" />
+	<meta property="og:image" content="https://vtimestamp.com/og-image.png" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:image" content="https://vtimestamp.com/og-image.png" />
 	<meta name="twitter:title" content="vtimestamp — Decentralized Document Timestamping" />
 	<meta name="twitter:description" content="Prove your documents existed at a specific moment in time. Free, decentralized, privacy-first timestamps on the Verus blockchain." />
 	{@html `<script type="application/ld+json">

@@ -6,7 +6,9 @@
 	<meta property="og:description" content="Detailed comparison of blockchain timestamping tools and chains. vtimestamp vs traditional notary, centralized services, Bitcoin OP_RETURN, Ethereum, Solana, Cardano, Hedera, and Sui." />
 	<meta property="og:url" content="https://vtimestamp.com/compare" />
 	<meta property="og:type" content="article" />
-	<meta name="twitter:card" content="summary" />
+	<meta property="og:image" content="https://vtimestamp.com/og-image.png" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:image" content="https://vtimestamp.com/og-image.png" />
 	<meta name="twitter:title" content="Blockchain Timestamping Compared: vtimestamp vs Alternatives" />
 	<meta name="twitter:description" content="Detailed comparison of blockchain timestamping tools and chains. vtimestamp vs traditional notary, centralized services, Bitcoin OP_RETURN, Ethereum, Solana, Cardano, Hedera, and Sui." />
 	{@html `<script type="application/ld+json">

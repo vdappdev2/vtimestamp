@@ -6,7 +6,9 @@
 	<meta property="og:description" content="Technical documentation for vtimestamp: VDXF key reference, on-chain data structure, CLI verification commands, and MCP server integration for AI agents." />
 	<meta property="og:url" content="https://vtimestamp.com/developers" />
 	<meta property="og:type" content="article" />
-	<meta name="twitter:card" content="summary" />
+	<meta property="og:image" content="https://vtimestamp.com/og-image.png" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:image" content="https://vtimestamp.com/og-image.png" />
 	<meta name="twitter:title" content="Developer Documentation — vtimestamp API & VDXF Reference" />
 	<meta name="twitter:description" content="Technical documentation for vtimestamp: VDXF key reference, on-chain data structure, CLI verification commands, and MCP server integration." />
 	{@html `<script type="application/ld+json">

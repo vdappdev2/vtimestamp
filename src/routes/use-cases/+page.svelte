@@ -6,7 +6,9 @@
 	<meta property="og:description" content="How blockchain timestamping is used for intellectual property, legal documents, research data, creative work, and compliance. Real scenarios where proof of existence matters." />
 	<meta property="og:url" content="https://vtimestamp.com/use-cases" />
 	<meta property="og:type" content="article" />
-	<meta name="twitter:card" content="summary" />
+	<meta property="og:image" content="https://vtimestamp.com/og-image.png" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:image" content="https://vtimestamp.com/og-image.png" />
 	<meta name="twitter:title" content="Use Cases — Who Needs Blockchain Timestamping?" />
 	<meta name="twitter:description" content="How blockchain timestamping is used for intellectual property, legal documents, research data, creative work, and compliance." />
 	{@html `<script type="application/ld+json">

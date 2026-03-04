@@ -6,7 +6,9 @@
 	<meta property="og:description" content="Learn how vtimestamp creates and verifies cryptographic proof that documents existed at a specific time. SHA-256 hashing, VerusID signing, and permissionless verification explained." />
 	<meta property="og:url" content="https://vtimestamp.com/how-it-works" />
 	<meta property="og:type" content="article" />
-	<meta name="twitter:card" content="summary" />
+	<meta property="og:image" content="https://vtimestamp.com/og-image.png" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:image" content="https://vtimestamp.com/og-image.png" />
 	<meta name="twitter:title" content="How Blockchain Timestamping Works | vtimestamp" />
 	<meta name="twitter:description" content="Learn how vtimestamp creates and verifies cryptographic proof that documents existed at a specific time." />
 	{@html `<script type="application/ld+json">

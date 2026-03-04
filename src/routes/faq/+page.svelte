@@ -6,7 +6,9 @@
 	<meta property="og:description" content="Common questions about vtimestamp: privacy, cost, verification, VerusID, SHA-256 hashing, and how blockchain timestamping works." />
 	<meta property="og:url" content="https://vtimestamp.com/faq" />
 	<meta property="og:type" content="article" />
-	<meta name="twitter:card" content="summary" />
+	<meta property="og:image" content="https://vtimestamp.com/og-image.png" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:image" content="https://vtimestamp.com/og-image.png" />
 	<meta name="twitter:title" content="FAQ — Document Timestamping Questions Answered | vtimestamp" />
 	<meta name="twitter:description" content="Common questions about vtimestamp: privacy, cost, verification, VerusID, SHA-256 hashing, and how blockchain timestamping works." />
 	{@html `<script type="application/ld+json">
