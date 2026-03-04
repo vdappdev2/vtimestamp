@@ -4,17 +4,17 @@
 
 <svelte:head>
 	<title>vtimestamp — Decentralized Document Timestamping on Verus</title>
-	<meta name="description" content="Prove your documents existed at a specific moment in time. Free, decentralized, privacy-first timestamps on the Verus blockchain. Your files never leave your device." />
+	<meta name="description" content="Prove when your documents existed. Decentralized, immutable, privacy-preserving timestamps on Verus blockchain." />
 	<link rel="canonical" href="https://vtimestamp.com/" />
 	<meta property="og:title" content="vtimestamp — Decentralized Document Timestamping" />
-	<meta property="og:description" content="Prove your documents existed at a specific moment in time. Free, decentralized, privacy-first timestamps on the Verus blockchain." />
+	<meta property="og:description" content="Prove when your documents existed. Decentralized, immutable, privacy-preserving timestamps on Verus blockchain." />
 	<meta property="og:url" content="https://vtimestamp.com/" />
 	<meta property="og:type" content="website" />
 	<meta property="og:image" content="https://vtimestamp.com/og-image.png" />
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:image" content="https://vtimestamp.com/og-image.png" />
 	<meta name="twitter:title" content="vtimestamp — Decentralized Document Timestamping" />
-	<meta name="twitter:description" content="Prove your documents existed at a specific moment in time. Free, decentralized, privacy-first timestamps on the Verus blockchain." />
+	<meta name="twitter:description" content="Prove when your documents existed. Decentralized, immutable, privacy-preserving timestamps on Verus blockchain." />
 	{@html `<script type="application/ld+json">
 {
   "@context": "https://schema.org",
