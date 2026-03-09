@@ -11,6 +11,17 @@
   let deeplinkUri = $state('');
   let challengeId = $state('');
   let showQR = $state(false);
+  let copiedLink = $state(false);
+
+  async function copyDeeplink() {
+    try {
+      await navigator.clipboard.writeText(deeplinkUri);
+      copiedLink = true;
+      setTimeout(() => { copiedLink = false; }, 2000);
+    } catch (err) {
+      console.error('Failed to copy deeplink:', err);
+    }
+  }
 
   // Polling interval reference
   let pollingInterval: ReturnType<typeof setInterval> | null = null;
@@ -180,6 +191,15 @@
           Cancel
         </button>
       </div>
+      <button
+        class="text-sm underline cursor-pointer bg-transparent border-none"
+        style="color: var(--color-text-secondary); transition: color 0.15s ease;"
+        onmouseenter={(e) => e.currentTarget.style.color = 'var(--color-primary)'}
+        onmouseleave={(e) => e.currentTarget.style.color = 'var(--color-text-secondary)'}
+        onclick={copyDeeplink}
+      >
+        {copiedLink ? '✓ Copied!' : 'Copy deeplink'}
+      </button>
     </div>
   {:else}
     <button class="btn btn-primary" onclick={initiateLogin} disabled={loading}>

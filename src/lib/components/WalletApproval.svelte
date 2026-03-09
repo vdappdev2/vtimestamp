@@ -15,9 +15,21 @@
     onCancel,
   }: Props = $props();
 
+  let copiedLink = $state(false);
+
   function openDeeplink() {
     if (deeplinkUri) {
       window.location.href = deeplinkUri;
+    }
+  }
+
+  async function copyDeeplink() {
+    try {
+      await navigator.clipboard.writeText(deeplinkUri);
+      copiedLink = true;
+      setTimeout(() => { copiedLink = false; }, 2000);
+    } catch (err) {
+      console.error('Failed to copy deeplink:', err);
     }
   }
 </script>
@@ -38,6 +50,9 @@
       Cancel
     </button>
   </div>
+  <button class="copy-deeplink" onclick={copyDeeplink}>
+    {copiedLink ? '✓ Copied!' : 'Copy deeplink'}
+  </button>
 
   <p class="approval-status">
     Waiting for wallet approval...
@@ -89,6 +104,21 @@
   .btn-secondary:hover {
     background-color: var(--color-surface);
     border-color: var(--color-text-secondary);
+  }
+
+  .copy-deeplink {
+    background: transparent;
+    border: none;
+    color: var(--color-text-secondary);
+    font-size: 0.875rem;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.15s ease;
+  }
+
+  .copy-deeplink:hover {
+    color: var(--color-primary);
   }
 
   .approval-status {
