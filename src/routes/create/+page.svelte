@@ -22,7 +22,10 @@
   let isHashing = $state(false);
 
   // Duplicate check
-  let duplicateInfo = $state<{ exists: boolean; title?: string } | null>(null);
+  let duplicateInfo = $state<{
+    exists: boolean;
+    timestamp?: { title: string; blockhash: string; blockheight: number; txid: string };
+  } | null>(null);
   let isCheckingDuplicate = $state(false);
 
   // Form fields

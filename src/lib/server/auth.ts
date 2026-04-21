@@ -56,7 +56,7 @@ function generateRandomIAddress(): string {
   const payload = Buffer.concat([versionByte, hash as unknown as Uint8Array]);
 
   // bs58check handles the checksum automatically
-  return bs58check.encode(payload) as string;
+  return bs58check.encode(payload as unknown as Uint8Array) as string;
 }
 
 /**
