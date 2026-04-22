@@ -1,6 +1,7 @@
 <script lang="ts">
   import { session, isLoggedIn, currentIdentity } from '$lib/stores/session';
   import { onMount, onDestroy } from 'svelte';
+  import { goto } from '$app/navigation';
   import QRCode from 'qrcode';
 
   // State for login flow
@@ -153,6 +154,7 @@
     session.logout();
     stopPolling();
     resetLoginState();
+    goto('/');
   }
 
   function cancelLogin() {
