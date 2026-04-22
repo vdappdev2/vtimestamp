@@ -54,6 +54,10 @@ export const VERUS_RPC = {
 const TESTNET_VDXF = {
   // Outer key: testidx.vrsctest::proof.basic
   proofBasic: 'i6UD4js3jqyjz9Mttmbk2Sh4eCuwLKPLyQ',
+  // FQN form — used as the outer contentmultimap key when building an
+  // IdentityUpdateRequest. Verus Mobile accepts custom keys only when passed
+  // as FQN (namespace must match the signing identity).
+  proofBasicFqn: 'testidx.vrsctest::proof.basic',
 
   // Labels (inside DataDescriptor)
   labels: {
@@ -69,6 +73,7 @@ const TESTNET_VDXF = {
 const MAINNET_VDXF = {
   // Outer key: vtimestamp.vrsc::proof.basic
   proofBasic: 'iJvkQ3uTKmRoFiE3rtP8YJxryLBKu8enmX',
+  proofBasicFqn: 'vtimestamp.vrsc::proof.basic',
 
   // Labels (inside DataDescriptor)
   labels: {

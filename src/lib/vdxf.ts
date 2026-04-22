@@ -148,7 +148,9 @@ export function parseHistoryEntry(entry: IdentityHistoryEntry): TimestampRecord 
   if (!contentmultimap) return null;
 
   // Look for our timestamp proof outer key
-  const entries = contentmultimap[VDXF_KEYS.proofBasic];
+  // Accept either key form. The daemon may normalize FQN to i-address on store,
+  // or it may preserve the submitted form — check both so we're robust either way.
+  const entries = contentmultimap[VDXF_KEYS.proofBasic] ?? contentmultimap[VDXF_KEYS.proofBasicFqn];
   if (!entries || entries.length === 0) return null;
 
   const data = parseTimestampData(entries);
@@ -260,8 +262,11 @@ export function buildTimestampContentMap(input: CreateTimestampInput): ContentMu
     entries.push(buildDataDescriptor(VDXF_KEYS.labels.filesize, input.filesize));
   }
 
+  // Use FQN form as the outer key. Verus Mobile's IdentityUpdateRequest handler
+  // rejects i-address keys unless they're in its built-in well-known list; custom
+  // keys must be FQN so the wallet can verify the namespace matches the signer.
   return {
-    [VDXF_KEYS.proofBasic]: entries,
+    [VDXF_KEYS.proofBasicFqn]: entries,
   };
 }
 

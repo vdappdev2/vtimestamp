@@ -9,9 +9,10 @@ import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { storeTimestampResult } from '$lib/server/timestamp';
 import {
-  GenericRequest,
+  GenericResponse,
   IdentityUpdateResponseOrdinalVDXFObject,
   IdentityUpdateResponseDetails,
+  GENERIC_RESPONSE_DEEPLINK_VDXF_KEY,
 } from 'verus-typescript-primitives';
 
 /**
@@ -78,27 +79,10 @@ export const GET: RequestHandler = async ({ url }) => {
       });
     }
 
-    // Find the response data from query params
-    let responseData: string | null = null;
-
-    for (const param of ['response', 'data']) {
-      const value = url.searchParams.get(param);
-      if (value) {
-        responseData = value;
-        break;
-      }
-    }
-
-    // Check for i-address style params
-    if (!responseData) {
-      for (const [key, value] of url.searchParams) {
-        if (key === 'requestId') continue;
-        if (key.startsWith('i') && key.length > 30) {
-          responseData = value || key;
-          break;
-        }
-      }
-    }
+    // Verus Mobile's TYPE_REDIRECT flow appends the base64url-encoded GenericResponse
+    // buffer under a query param whose key is GENERIC_RESPONSE_DEEPLINK_VDXF_KEY.vdxfid.
+    // See Verus-Mobile/src/containers/DeepLink/GenericRequestComplete/GenericRequestComplete.js
+    const responseData = url.searchParams.get(GENERIC_RESPONSE_DEEPLINK_VDXF_KEY.vdxfid);
 
     if (!responseData) {
       return new Response(errorPage('Missing response data'), {
@@ -133,19 +117,15 @@ export const GET: RequestHandler = async ({ url }) => {
 };
 
 /**
- * Parse GenericRequest response envelope and extract txid
+ * Decode a base64url GenericResponse payload and extract the identity update txid.
+ * GenericResponse has no static fromQrString helper — decode manually then fromBuffer.
  */
 function parseIdentityUpdateResponse(responseData: string): { txid: string } | null {
   try {
-    let response: GenericRequest;
+    const buf = Buffer.from(responseData, 'base64url');
+    const response = new GenericResponse();
+    response.fromBuffer(buf, 0);
 
-    if (responseData.startsWith('verus://') || responseData.includes('://')) {
-      response = GenericRequest.fromWalletDeeplinkUri(responseData);
-    } else {
-      response = GenericRequest.fromQrString(responseData);
-    }
-
-    // Extract IdentityUpdateResponseDetails from the first detail
     const detail = response.details[0];
     if (!(detail instanceof IdentityUpdateResponseOrdinalVDXFObject)) {
       console.error('Response does not contain identity update response');
@@ -164,7 +144,7 @@ function parseIdentityUpdateResponse(responseData: string): { txid: string } | n
 
     return { txid };
   } catch (err) {
-    console.error('Error parsing GenericRequest response:', err);
+    console.error('Error parsing GenericResponse:', err);
     return null;
   }
 }
