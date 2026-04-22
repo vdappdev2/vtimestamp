@@ -42,16 +42,16 @@
 	<section class="content-section">
 		<h2>What vtimestamp Is</h2>
 		<p>
-			vtimestamp is a free service that creates cryptographic proof your documents existed at a specific moment in time. The proof is stored permanently on the Verus blockchain, tied to your self-sovereign VerusID.
+			vtimestamp is a free, open-source service that creates cryptographic proof your documents existed at a specific moment in time. The proof is stored permanently on the Verus blockchain, tied to your self-sovereign VerusID.
 		</p>
 		<p>
 			Your documents never leave your device — only a SHA-256 hash is published. Anyone can verify your timestamps without needing an account, trusting a company, or relying on any centralized service.
 		</p>
 		<p>
-			The mission is simple: make document timestamping accessible, private, and permanent. No subscriptions, no gatekeepers, no databases that can disappear.
+			The mission is simple: make document timestamping accessible, private, and permanent. No subscriptions, no accounts, no gatekeepers, no databases that can disappear. The only cost is a tiny blockchain transaction fee — approximately 0.0003 VRSC per timestamp, a fraction of a cent.
 		</p>
 		<p>
-			vtimestamp runs on Verus mainnet for production use, and is also available on testnet for trying it out.
+			Try it at <a href="/" class="text-primary hover:underline">vtimestamp.com</a> — mainnet is live, and <a href="https://test.vtimestamp.com" class="text-primary hover:underline" target="_blank" rel="noopener">test.vtimestamp.com</a> is available if you want to experiment first.
 		</p>
 	</section>
 
@@ -59,12 +59,16 @@
 	<section class="content-section">
 		<h2>Built on Verus</h2>
 		<p>
-			vtimestamp is built on the <a href="https://verus.io" class="text-primary hover:underline" target="_blank" rel="noopener">Verus blockchain</a> — a public, open-source, community-driven network with unique features that make it ideal for timestamping:
+			vtimestamp is built on the <a href="https://verus.io" class="text-primary hover:underline" target="_blank" rel="noopener">Verus blockchain</a> — a public, open-source, community-driven network. Unlike most chains, Verus builds identity, structured data storage, and other application primitives directly into the protocol — so services like vtimestamp work without smart contracts.
 		</p>
 		<div class="grid md:grid-cols-2 gap-4 mt-4">
 			<div class="card">
 				<h3 class="font-semibold mb-1 text-sm">Native Identity (VerusID)</h3>
-				<p class="text-secondary text-xs">Self-sovereign identities built into the protocol. Your timestamps are tied to a human-readable name you own — not a hex address.</p>
+				<p class="text-secondary text-xs">Self-sovereign identities built into the protocol. You own your VerusID outright — no rental, no recurring fees to keep it, and you can sell or trade it peer-to-peer on Verus's on-chain marketplace. Revocation and recovery are supported, so you can rotate keys without losing your timestamp history.</p>
+			</div>
+			<div class="card">
+				<h3 class="font-semibold mb-1 text-sm">No Smart Contracts</h3>
+				<p class="text-secondary text-xs">Timestamps are a native Verus transaction (<code class="hash">updateidentity</code>) — no VM, no gas, no contract to deploy or audit. Cheaper, simpler, and fewer things that can go wrong.</p>
 			</div>
 			<div class="card">
 				<h3 class="font-semibold mb-1 text-sm">VDXF Data Format</h3>
@@ -72,7 +76,7 @@
 			</div>
 			<div class="card">
 				<h3 class="font-semibold mb-1 text-sm">Low Cost</h3>
-				<p class="text-secondary text-xs">Transaction fees are approximately 0.0001 VRSC per timestamp. Costs are stable and predictable — no volatile gas markets.</p>
+				<p class="text-secondary text-xs">Transaction fees are approximately 0.0003 VRSC per timestamp. Costs are stable and predictable — no volatile gas markets.</p>
 			</div>
 			<div class="card">
 				<h3 class="font-semibold mb-1 text-sm">Permissionless</h3>

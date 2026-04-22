@@ -34,7 +34,7 @@
 			Use Cases
 		</h1>
 		<p class="text-lg text-secondary max-w-2xl mx-auto">
-			Timestamping proves one thing: <strong>this data existed before this moment</strong>. That single guarantee has real applications across industries and personal use.
+			Timestamping proves one thing: <strong>this data existed as of this moment</strong>. That single guarantee has real applications across industries and personal use.
 		</p>
 	</section>
 
@@ -129,11 +129,34 @@
 					<div>
 						<h3 class="font-semibold mb-2 text-lg">Creative Work</h3>
 						<p class="text-secondary text-sm mb-3">
-							Art, music, code, writing, photography, and design. Prove authorship timing for any creative output.
+							Art, music, code, writing, photography, and design. Prove authorship timing for any creative output. Developers can also timestamp specific code commits, release artifacts, or open-source contributions to establish authorship and integrity of the exact bytes at the exact time.
 						</p>
 						<div class="card" style="background-color: color-mix(in srgb, var(--color-primary) 4%, transparent); border-color: color-mix(in srgb, var(--color-primary) 15%, transparent);">
 							<p class="text-sm text-secondary">
 								<strong class="text-primary">Scenario:</strong> A musician writes and records an original composition, then timestamps the audio file. Months later, a similar track appears. The vtimestamp provides dated proof that the musician's version existed first — evidence that can support an infringement claim without relying on any centralized service that might not exist later.
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- AI-Era Authenticity -->
+			<div class="card">
+				<div class="flex items-start gap-4">
+					<div class="shrink-0 w-10 h-10 rounded-lg flex items-center justify-center" style="background-color: color-mix(in srgb, var(--color-primary) 12%, transparent);">
+						<svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="var(--color-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/>
+							<path d="m9 12 2 2 4-4"/>
+						</svg>
+					</div>
+					<div>
+						<h3 class="font-semibold mb-2 text-lg">AI-Era Authenticity</h3>
+						<p class="text-secondary text-sm mb-3">
+							Prove content is human-created and original — before AI-generated imitations, deepfakes, or altered versions can muddy the record. Critical for photos, video, audio, journalism, and any media where provenance matters.
+						</p>
+						<div class="card" style="background-color: color-mix(in srgb, var(--color-primary) 4%, transparent); border-color: color-mix(in srgb, var(--color-primary) 15%, transparent);">
+							<p class="text-sm text-secondary">
+								<strong class="text-primary">Scenario:</strong> A photojournalist timestamps raw photos immediately after capture. Weeks later, a manipulated or AI-generated version circulates online. The vtimestamp proves the authentic original existed first and hasn't been altered — evidence that's increasingly essential as generative models make synthetic media harder to distinguish from real.
 							</p>
 						</div>
 					</div>
@@ -175,7 +198,7 @@
 					<div>
 						<h3 class="font-semibold mb-2 text-lg">Personal Records</h3>
 						<p class="text-secondary text-sm mb-3">
-							Anything you might need to prove later — personal documentation, important correspondence, or records of events.
+							Anything you might need to prove later — personal documentation, important correspondence, photos or video of events, dashcam footage, accident documentation, or records of property condition.
 						</p>
 						<div class="card" style="background-color: color-mix(in srgb, var(--color-primary) 4%, transparent); border-color: color-mix(in srgb, var(--color-primary) 15%, transparent);">
 							<p class="text-sm text-secondary">
@@ -200,6 +223,7 @@
 	<div class="cross-links">
 		<h3>Learn more</h3>
 		<div class="flex flex-wrap gap-3">
+			<a href="/about">About &rarr;</a>
 			<a href="/how-it-works">How It Works &rarr;</a>
 			<a href="/compare">Compare &rarr;</a>
 			<a href="/create">Create a Timestamp &rarr;</a>

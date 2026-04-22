@@ -2,4 +2,8 @@
 User-agent: *
 Disallow:
 
+# LLM-optimized content available for AI crawlers
+# https://vtimestamp.com/llms.txt (index)
+# https://vtimestamp.com/llms-full.txt (complete content)
+
 Sitemap: https://vtimestamp.com/sitemap.xml

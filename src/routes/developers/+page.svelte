@@ -154,54 +154,77 @@
 	<!-- Verifying Programmatically -->
 	<section class="content-section" style="max-width: 56rem;">
 		<h2>Verifying Programmatically</h2>
-		<p>You can verify timestamps using the Verus CLI without the vtimestamp website.</p>
+		<p>You can verify timestamps using the Verus CLI without the vtimestamp website. The primary call is <code class="hash">getidentityhistory</code>, which gives you per-update block info needed to prove <em>when</em> a timestamp was recorded. A related call, <code class="hash">getidentitycontent</code>, is useful for a different purpose — see the alternative section below.</p>
 
 		<h3 class="mt-6">Step 1: Get Identity History</h3>
-		<p class="text-secondary text-sm">Retrieve all updates for a VerusID:</p>
+		<p class="text-secondary text-sm">Retrieve every update ever made to a VerusID:</p>
 		<div class="code-block">
-<pre>verus getidentityhistory "alice@" 0 0 0 0</pre>
+<pre>verus getidentityhistory "alice@"</pre>
 		</div>
 		<p class="text-secondary text-sm">
-			The parameters are: <code class="hash">identity</code>, <code class="hash">startHeight</code>, <code class="hash">endHeight</code>, <code class="hash">txCount</code>, <code class="hash">txsToSkip</code>. Using <code class="hash">0</code> for all returns the full history. This returns every <code class="hash">updateidentity</code> transaction for that identity, each including <code class="hash">height</code>, <code class="hash">blockhash</code>, and the full <code class="hash">contentmultimap</code>.
+			Returns every <code class="hash">updateidentity</code> transaction for that identity. Each history entry includes <code class="hash">height</code>, <code class="hash">blockhash</code>, the full identity state at that point (including <code class="hash">contentmultimap</code>), and <code class="hash">output.txid</code>. Optional trailing arguments can narrow the height range; omitting them returns the full history.
 		</p>
 
 		<h3 class="mt-6">Step 2: Find Timestamp Entries</h3>
 		<p class="text-secondary text-sm">
-			Look for entries where <code class="hash">contentmultimap</code> contains the <code class="hash">proof.basic</code> key (use the appropriate i-address for your network). Each history entry looks like this:
+			Look for entries where <code class="hash">identity.contentmultimap</code> contains the <code class="hash">proof.basic</code> key (use the appropriate i-address for your network). A single history entry looks like this:
 		</p>
 		<div class="code-block">
 			{@html `<pre>{
-  "height": 4523891,
-  "blockhash": "000000000003a1b2c3d4e5f6...",
-  "txid": "a1b2c3d4e5f6a7b8c9d0e1f2...",
   "identity": {
     "contentmultimap": {
       "iJvkQ3uTKmRoFiE3rtP8YJxryLBKu8enmX": [
         {
           "i4GC1YGEVD21afWudGoFJVdnfjJ5XWnCQv": {
             "version": 1,
-            "label": "iPRekBwQwFxNHf6mE68n8i2iXEnVdk1hw8",
+            "flags": 96,
             "mimetype": "text/plain",
-            "objectdata": "a7f3b2c1d4e5f6a7b8c9d0e1..."
+            "label": "iPRekBwQwFxNHf6mE68n8i2iXEnVdk1hw8",
+            "objectdata": {
+              "message": "a7f3b2c1d4e5f6a7b8c9d0e1..."
+            }
           }
         },
         ...
       ]
     }
+  },
+  "blockhash": "000000000003a1b2c3d4e5f6...",
+  "height": 4523891,
+  "output": {
+    "txid": "a1b2c3d4e5f6a7b8c9d0e1f2...",
+    "voutnum": 1
   }
 }</pre>`}
 		</div>
 		<p class="text-secondary text-sm">
-			Parse the DataDescriptor array to find entries where the <code class="hash">label</code> matches the <code class="hash">.sha256</code> i-address for your network. Compare the <code class="hash">objectdata</code> value against your computed hash (case-insensitive).
+			Parse each DataDescriptor in the array. Important: the field value lives at <code class="hash">objectdata.message</code>, not at <code class="hash">objectdata</code> directly. Match each descriptor's <code class="hash">label</code> against the known i-addresses above (<code class="hash">.sha256</code>, <code class="hash">.title</code>, etc.) and compare the hash case-insensitively.
 		</p>
 
 		<h3 class="mt-6">Step 3: Get Block Time</h3>
-		<p class="text-secondary text-sm">Once you find a matching entry, retrieve the block details:</p>
+		<p class="text-secondary text-sm">Once you find a matching entry, fetch the block to get the timestamp:</p>
 		<div class="code-block">
 <pre>verus getblock "blockhash_from_history"</pre>
 		</div>
 		<p class="text-secondary text-sm">
-			The <code class="hash">time</code> field in the block response is the Unix timestamp — the consensus-verified moment when that block was mined and your timestamp was recorded.
+			The <code class="hash">time</code> field in the block response is the Unix timestamp — the consensus-verified moment when that block was mined and your timestamp was recorded. Note: neither <code class="hash">getidentityhistory</code> nor <code class="hash">getidentitycontent</code> returns block time directly. It has to come from the block itself via <code class="hash">getblock</code> (or <code class="hash">getblockheader</code>).
+		</p>
+
+		<h3 class="mt-6">Alternative: Using getidentitycontent</h3>
+		<p class="text-secondary text-sm">
+			<code class="hash">getidentitycontent</code> returns the <em>accumulated</em> contentmultimap for an identity and supports filtering by VDXF key. It's more ergonomic when you just want to list an identity's current timestamps — no need to iterate history entries:
+		</p>
+		<div class="code-block">
+<pre>verus getidentitycontent "alice@" 0 0 false 0 "vtimestamp.vrsc::proof.basic"</pre>
+		</div>
+		<p class="text-secondary text-sm">
+			The trailing argument filters results to just <code class="hash">proof.basic</code> entries, so you get only the timestamp data. Use <code class="hash">testidx.vrsctest::proof.basic</code> on testnet.
+		</p>
+		<p class="text-secondary text-sm">
+			<strong class="text-primary">Important caveat:</strong> <code class="hash">getidentitycontent</code>'s top-level <code class="hash">blockheight</code> and <code class="hash">txid</code> refer only to the identity's <em>latest</em> update — not to any specific entry inside the contentmultimap. If you want to know <em>when a particular hash was recorded</em>, you must use <code class="hash">getidentityhistory</code> to find the exact updateidentity transaction that added it, then call <code class="hash">getblock</code> against that entry's <code class="hash">blockhash</code>.
+		</p>
+		<p class="text-secondary text-sm">
+			<strong class="text-primary">When to use which:</strong> use <code class="hash">getidentitycontent</code> for "show me this identity's current timestamps." Use <code class="hash">getidentityhistory</code> when you need per-timestamp recording times — which is the core of timestamp verification and what vtimestamp's own verify page does.
 		</p>
 	</section>
 

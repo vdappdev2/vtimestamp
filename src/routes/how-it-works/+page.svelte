@@ -58,6 +58,9 @@
 					<p class="text-secondary text-sm">
 						SHA-256 is a one-way function. Given the hash, no one can reconstruct your document. Given a different document, no one can produce the same hash. The hash is a unique fingerprint — nothing more.
 					</p>
+					<p class="text-secondary text-sm">
+						One thing to keep in mind: because only the hash is stored on-chain, you'll need to keep the original file (or the exact text you pasted) to later prove what was timestamped. The hash is the anchor; your document is what the anchor points to.
+					</p>
 				</div>
 			</div>
 
@@ -87,7 +90,7 @@
 				<div>
 					<h3 class="font-semibold mb-1">Sign with Your VerusID</h3>
 					<p class="text-secondary text-sm mb-2">
-						vtimestamp constructs an identity update request containing your hash and metadata, packaged as VDXF data. The service identity signs this request — so your wallet knows it's a legitimate vtimestamp request — then presents it to you as a QR code (or deep link on mobile).
+						vtimestamp constructs an identity update request containing your hash and metadata, packaged as VDXF (Verus Data eXchange Format) data — a structured, typed format for on-chain content with namespaced keys. The service identity signs this request — so your wallet knows it's a legitimate vtimestamp request — then presents it to you as a QR code (or deep link on mobile).
 					</p>
 					<p class="text-secondary text-sm">
 						You approve the request in <strong>Verus Mobile</strong> or a compatible wallet app. This proves your identity — only you can sign for your VerusID — and broadcasts an <code class="hash">updateidentity</code> transaction to the Verus blockchain. The service never has control of your identity; it only constructs the request. You authorize it.
@@ -101,7 +104,7 @@
 				<div>
 					<h3 class="font-semibold mb-1">Blockchain Confirmation</h3>
 					<p class="text-secondary text-sm mb-2">
-						Once the transaction is included in a block, your timestamp is permanent. The block provides:
+						Once the transaction is included in a block, your timestamp is permanent. The hash and metadata are now part of your VerusID's on-chain state (stored in its <code class="hash">contentmultimap</code>) — queryable by anyone, at any time. The block itself provides:
 					</p>
 					<ul class="text-secondary text-sm space-y-1 ml-4 list-disc">
 						<li><strong>Block height</strong> — the position in the chain (e.g., block #4,523,891)</li>
@@ -157,7 +160,7 @@
 						<span style="color: var(--color-success);">Verified: YES</span><br/>
 						Identity: alice@<br/>
 						Title:&nbsp;&nbsp;&nbsp; Q4 Financial Report<br/>
-						Date:&nbsp;&nbsp;&nbsp;&nbsp; Feb 18, 2025, 10:30:45 AM<br/>
+						Date:&nbsp;&nbsp;&nbsp;&nbsp; Feb 18, 2026, 10:30:45 AM<br/>
 						Block:&nbsp;&nbsp;&nbsp; #4,523,891<br/>
 						Tx:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; a1b2c3d4e5f6...
 					</div>
@@ -200,7 +203,7 @@
 					</tr>
 					<tr>
 						<td>Delete a timestamp</td>
-						<td>Blockchain data is append-only. Historical identity states are preserved in the chain's history forever.</td>
+						<td>Even if a later update clears the current-state view, every past identity update is preserved forever in the chain's history. The original timestamp remains discoverable via <code class="hash">getidentityhistory</code>.</td>
 					</tr>
 				</tbody>
 			</table>
@@ -250,8 +253,10 @@
 	<div class="cross-links">
 		<h3>Learn more</h3>
 		<div class="flex flex-wrap gap-3">
+			<a href="/about">About &rarr;</a>
 			<a href="/compare">Compare &rarr;</a>
 			<a href="/faq">FAQ &rarr;</a>
+			<a href="/developers">Developers &rarr;</a>
 			<a href="/verify">Verify a Timestamp &rarr;</a>
 		</div>
 	</div>

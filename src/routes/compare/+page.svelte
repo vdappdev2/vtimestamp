@@ -1,22 +1,22 @@
 <svelte:head>
 	<title>Blockchain Timestamping Compared: vtimestamp vs Alternatives | vtimestamp</title>
-	<meta name="description" content="Detailed comparison of blockchain timestamping tools and chains. vtimestamp vs traditional notary, centralized services, Bitcoin OP_RETURN, Ethereum, Solana, Cardano, Hedera, and Sui." />
+	<meta name="description" content="Detailed comparison of blockchain timestamping tools and chains. vtimestamp vs traditional notary, centralized services, RFC 3161 TSAs, OpenTimestamps, Ethereum, Solana, Cardano, Hedera, and Sui." />
 	<link rel="canonical" href="https://vtimestamp.com/compare" />
 	<meta property="og:title" content="Blockchain Timestamping Compared: vtimestamp vs Alternatives | vtimestamp" />
-	<meta property="og:description" content="Detailed comparison of blockchain timestamping tools and chains. vtimestamp vs traditional notary, centralized services, Bitcoin OP_RETURN, Ethereum, Solana, Cardano, Hedera, and Sui." />
+	<meta property="og:description" content="Detailed comparison of blockchain timestamping tools and chains. vtimestamp vs traditional notary, centralized services, RFC 3161 TSAs, OpenTimestamps, Ethereum, Solana, Cardano, Hedera, and Sui." />
 	<meta property="og:url" content="https://vtimestamp.com/compare" />
 	<meta property="og:type" content="article" />
 	<meta property="og:image" content="https://vtimestamp.com/og-image.png" />
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:image" content="https://vtimestamp.com/og-image.png" />
 	<meta name="twitter:title" content="Blockchain Timestamping Compared: vtimestamp vs Alternatives" />
-	<meta name="twitter:description" content="Detailed comparison of blockchain timestamping tools and chains. vtimestamp vs traditional notary, centralized services, Bitcoin OP_RETURN, Ethereum, Solana, Cardano, Hedera, and Sui." />
+	<meta name="twitter:description" content="Detailed comparison of blockchain timestamping tools and chains. vtimestamp vs traditional notary, centralized services, RFC 3161 TSAs, OpenTimestamps, Ethereum, Solana, Cardano, Hedera, and Sui." />
 	{@html `<script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "Article",
   "headline": "Blockchain Timestamping Compared: vtimestamp vs Alternatives",
-  "description": "Detailed comparison of blockchain timestamping tools and chains. vtimestamp vs traditional notary, centralized services, Bitcoin OP_RETURN, Ethereum, Solana, Cardano, Hedera, and Sui.",
+  "description": "Detailed comparison of blockchain timestamping tools and chains. vtimestamp vs traditional notary, centralized services, RFC 3161 TSAs, OpenTimestamps, Ethereum, Solana, Cardano, Hedera, and Sui.",
   "url": "https://vtimestamp.com/compare",
   "image": "https://vtimestamp.com/og-image.png",
   "author": { "@type": "Person", "name": "vdappdev2", "url": "https://github.com/vdappdev2" },
@@ -51,7 +51,8 @@
 						<th class="col-highlight">vtimestamp</th>
 						<th>Traditional Notary</th>
 						<th>Centralized Service</th>
-						<th>Bitcoin OP_RETURN</th>
+						<th>RFC 3161 TSA</th>
+						<th>Bitcoin (OpenTimestamps)</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -60,56 +61,64 @@
 						<td class="col-highlight">Hash only, never uploaded</td>
 						<td>Document seen by notary</td>
 						<td>Document often uploaded</td>
-						<td>Hash only</td>
+						<td>Hash only (sent to TSA)</td>
+						<td>Hash only (client-side)</td>
 					</tr>
 					<tr>
 						<td>Proof ownership</td>
 						<td class="col-highlight">Your VerusID</td>
 						<td>Paper certificate</td>
 						<td>Service account</td>
-						<td>Bitcoin address</td>
+						<td>Signed time-stamp token file</td>
+						<td>A <code class="hash">.ots</code> file you keep</td>
 					</tr>
 					<tr>
 						<td>Verification</td>
 						<td class="col-highlight">Anyone, anytime, free</td>
 						<td>Requires notary records</td>
 						<td>Requires service to exist</td>
-						<td>Anyone with Bitcoin node</td>
+						<td>Requires TSA certificate chain</td>
+						<td>Anyone with the <code class="hash">.ots</code> file + a Bitcoin node</td>
 					</tr>
 					<tr>
 						<td>Metadata</td>
 						<td class="col-highlight">Title, description, filename on-chain</td>
 						<td>Notary's records</td>
 						<td>Service database</td>
-						<td>Raw hash only</td>
+						<td>None (hash + time only)</td>
+						<td>None (hash only)</td>
 					</tr>
 					<tr>
 						<td>Cost</td>
-						<td class="col-highlight">Verus tx fee (~0.0001 VRSC)</td>
+						<td class="col-highlight">Verus tx fee (~0.0003 VRSC)</td>
 						<td>Notary fee ($5-50+)</td>
 						<td>Subscription / per-stamp fee</td>
-						<td>Bitcoin tx fee (variable)</td>
+						<td>Free to per-stamp (commercial TSAs charge)</td>
+						<td>Free (aggregated via Merkle tree)</td>
 					</tr>
 					<tr>
 						<td>Identity</td>
 						<td class="col-highlight">Self-sovereign VerusID</td>
 						<td>Government ID</td>
 						<td>Email / password</td>
-						<td>Pseudonymous address</td>
+						<td>TSA-signed (no user identity)</td>
+						<td>None</td>
 					</tr>
 					<tr>
 						<td>Durability</td>
 						<td class="col-highlight">Blockchain permanent</td>
 						<td>Paper degrades</td>
 						<td>Company may shut down</td>
-						<td>Blockchain permanent</td>
+						<td>TSA cert expiration / TSA shutdown risk</td>
+						<td>Blockchain permanent; <code class="hash">.ots</code> file must be kept</td>
 					</tr>
 					<tr>
 						<td>Human readable</td>
 						<td class="col-highlight">Yes (metadata + explorer)</td>
 						<td>Yes (paper document)</td>
 						<td>Depends on service</td>
-						<td>No (raw hex data)</td>
+						<td>No (binary token)</td>
+						<td>No (hash and proof file)</td>
 					</tr>
 				</tbody>
 			</table>
@@ -173,7 +182,7 @@
 					</tr>
 					<tr>
 						<td>Cost per timestamp</td>
-						<td class="col-highlight">0.0001 VRSC (stable)</td>
+						<td class="col-highlight">0.0003 VRSC (stable)</td>
 						<td>21,000-41,000 gas + variable gwei (volatile)</td>
 						<td>0.000005 SOL</td>
 						<td>~0.18 ADA</td>
@@ -237,10 +246,10 @@
 					<tr>
 						<td>Existing timestamping dApps</td>
 						<td class="col-highlight">vtimestamp</td>
-						<td>DocStamp, OriginStamp</td>
+						<td>OriginStamp, CryptoProof (timestamp.com), ScoreDetect</td>
 						<td>Research prototypes only</td>
-						<td>Stampd.io</td>
-						<td>docStribute</td>
+						<td>No dedicated service found</td>
+						<td>No verified service found</td>
 						<td>None found</td>
 					</tr>
 				</tbody>
@@ -277,6 +286,12 @@
 					Hedera's HCS is purpose-built for this kind of thing and is very cheap. The tradeoff is decentralization: you can't run a consensus node (only governing council members can), and message data is stored on mirror nodes rather than consensus nodes. Verification depends on mirror node infrastructure being available. Verus is fully permissionless — anyone can run a node and verify directly.
 				</p>
 			</div>
+			<div class="card">
+				<h3 class="font-semibold mb-2">Verus vs Bitcoin / OpenTimestamps</h3>
+				<p class="text-secondary text-sm">
+					OpenTimestamps has been the standard for Bitcoin timestamping for nearly a decade. It's free — millions of timestamps aggregate into a single Bitcoin transaction via Merkle trees — and it runs on a clean, blockchain-agnostic open protocol. Its tradeoffs are scope: timestamps are hash-only with no identity or structured metadata, and each proof is a <code class="hash">.ots</code> file you have to keep alongside your document to verify. Verus trades free-per-timestamp for identity-attributed, structured, self-contained proofs that live on your VerusID — nothing extra to keep. OTS is excellent for "did this exist?" Verus is better for "who recorded this, with what context, and how can anyone find it again?"
+				</p>
+			</div>
 		</div>
 	</section>
 
@@ -300,8 +315,10 @@
 	<div class="cross-links">
 		<h3>Learn more</h3>
 		<div class="flex flex-wrap gap-3">
+			<a href="/about">About &rarr;</a>
 			<a href="/how-it-works">How It Works &rarr;</a>
 			<a href="/use-cases">Use Cases &rarr;</a>
+			<a href="/faq">FAQ &rarr;</a>
 			<a href="/developers">Developers &rarr;</a>
 		</div>
 	</div>

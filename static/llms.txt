@@ -1,28 +1,31 @@
 # vtimestamp
 
 > Decentralized document timestamping service built on the Verus blockchain.
-> Users hash documents locally (SHA-256), store the hash on their VerusID
-> (a self-sovereign blockchain identity), and anyone can verify the timestamp
-> without an account. Documents never leave the user's device.
+> Users hash documents locally (SHA-256) and store the hash with structured
+> metadata on their VerusID (a self-sovereign, protocol-native blockchain
+> identity). Anyone can verify timestamps without an account. Documents never
+> leave the user's device. No smart contracts required — timestamps are stored
+> via native updateidentity transactions for approximately 0.0003 VRSC each.
 
 vtimestamp creates cryptographic proof that a document existed at a specific
 point in time. The proof is permanently stored on the Verus blockchain, tied
-to the user's VerusID. Unlike centralized timestamping services, the proof
-survives even if vtimestamp itself shuts down.
+to the user's VerusID with structured metadata (title, description, filename).
+Unlike centralized timestamping services, the proof survives even if vtimestamp
+itself shuts down — anyone with a Verus node can verify directly.
 
 ## Core Pages
-- [How It Works](https://vtimestamp.com/how-it-works): Technical explanation of the timestamping and verification flow
-- [Compare](https://vtimestamp.com/compare): Detailed comparison vs other blockchain and traditional timestamping methods
-- [Use Cases](https://vtimestamp.com/use-cases): Applications for IP, legal, research, creative work, and compliance
-- [FAQ](https://vtimestamp.com/faq): Common questions about privacy, cost, verification, and trust model
-- [Developer Docs](https://vtimestamp.com/developers): VDXF key reference, on-chain data structure, CLI verification, MCP server integration
+- [How It Works](https://vtimestamp.com/how-it-works): Step-by-step explanation of the timestamping and verification flow, privacy model, and why timestamps can't be faked
+- [Compare](https://vtimestamp.com/compare): Detailed comparison vs OpenTimestamps, RFC 3161 TSAs, notaries, centralized services, and other blockchains (Ethereum, Solana, Cardano, Hedera, Sui)
+- [Use Cases](https://vtimestamp.com/use-cases): Applications for intellectual property, legal documents, research, creative work, AI-era content authenticity, compliance, and personal records
+- [FAQ](https://vtimestamp.com/faq): Common questions about privacy, cost, legal recognition, VerusID recovery, OpenTimestamps differences, and trust model
+- [About](https://vtimestamp.com/about): Mission, Built-on-Verus differentiators, open-source info
+- [Developer Docs](https://vtimestamp.com/developers): VDXF key reference, on-chain data structure, CLI verification (getidentityhistory and getidentitycontent), MCP server integration
 
 ## Tools
 - [Verify a Timestamp](https://vtimestamp.com/verify): Public verification tool (no login required)
 - [Create a Timestamp](https://vtimestamp.com/create): Create a new timestamp (requires VerusID login)
 
 ## Optional
-- [About](https://vtimestamp.com/about): Mission, background, and open-source info
 - [GitHub](https://github.com/vdappdev2/vtimestamp): Source code (MIT license)
 - [MCP Server (read)](https://www.npmjs.com/package/vtimestamp-mcp): AI agent integration for verifying timestamps
 - [MCP Server (write)](https://www.npmjs.com/package/vtimestamp-mcp-write): AI agent integration for creating timestamps

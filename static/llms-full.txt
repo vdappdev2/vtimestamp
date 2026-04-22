@@ -1,9 +1,11 @@
 # vtimestamp — Complete Site Content
 
 > Decentralized document timestamping service built on the Verus blockchain.
-> Users hash documents locally (SHA-256), store the hash on their VerusID
-> (a self-sovereign blockchain identity), and anyone can verify the timestamp
-> without an account. Documents never leave the user's device.
+> Users hash documents locally (SHA-256) and store the hash with structured
+> metadata on their VerusID (a self-sovereign, protocol-native blockchain
+> identity). Anyone can verify timestamps without an account. Documents never
+> leave the user's device. No smart contracts required — timestamps are stored
+> via native updateidentity transactions for approximately 0.0003 VRSC each.
 
 ---
 
@@ -14,16 +16,18 @@ vtimestamp creates cryptographic proof that a document existed at a specific poi
 ### Creating a Timestamp
 
 **Step 1: Hash Your Document**
-Your browser computes a SHA-256 hash of your file or text using the Web Crypto API. This happens entirely on your device — the document is never uploaded, transmitted, or stored anywhere. SHA-256 is a one-way function. Given the hash, no one can reconstruct your document. Given a different document, no one can produce the same hash. The hash is a unique fingerprint — nothing more.
+Your browser computes a SHA-256 hash of your file or text using the Web Crypto API. This happens entirely on your device — the document is never uploaded, transmitted, or stored anywhere. SHA-256 is a one-way function: given the hash, no one can reconstruct your document; given a different document, no one can produce the same hash. The hash is a unique fingerprint.
+
+One thing to keep in mind: because only the hash is stored on-chain, you'll need to keep the original file (or the exact text you pasted) to later prove what was timestamped. The hash is the anchor; your document is what the anchor points to.
 
 **Step 2: Add Metadata**
 You provide a title (required) and optionally a description. If you uploaded a file, the filename and file size are captured automatically. The system also checks for duplicates — if you've already timestamped this exact hash on your identity, you'll see a warning before proceeding.
 
 **Step 3: Sign with Your VerusID**
-vtimestamp constructs an identity update request containing your hash and metadata, packaged as VDXF data. The service identity signs this request — so your wallet knows it's a legitimate vtimestamp request — then presents it to you as a QR code (or deep link on mobile). You approve the request in Verus Mobile or a compatible wallet app. This proves your identity — only you can sign for your VerusID — and broadcasts an `updateidentity` transaction to the Verus blockchain. The service never has control of your identity; it only constructs the request. You authorize it.
+vtimestamp constructs an identity update request containing your hash and metadata, packaged as VDXF (Verus Data eXchange Format) data — a structured, typed format for on-chain content with namespaced keys. The service identity signs this request so your wallet knows it's a legitimate vtimestamp request, then presents it to you as a QR code (or deep link on mobile). You approve the request in Verus Mobile or a compatible wallet app — only you can sign for your VerusID — and this broadcasts an `updateidentity` transaction to the Verus blockchain. The service never has control of your identity; it only constructs the request. You authorize it.
 
 **Step 4: Blockchain Confirmation**
-Once the transaction is included in a block, your timestamp is permanent. The block provides: block height, block hash, block time (the consensus-verified timestamp of when the block was mined), and transaction ID. These values are immutable. No one can change them after the fact.
+Once the transaction is included in a block, your timestamp is permanent. The hash and metadata are now part of your VerusID's on-chain state (stored in its `contentmultimap`) — queryable by anyone, at any time. The block itself provides: block height, block hash, block time (the consensus-verified timestamp of when the block was mined), and transaction ID. These values are immutable.
 
 ### Verifying a Timestamp
 
@@ -31,7 +35,7 @@ Anyone can verify a timestamp. No login. No account. No special access. Just the
 
 1. **Hash the Document** — The verifier uploads the same file (or pastes the same text). The browser computes the SHA-256 hash locally. If the document has been modified by even a single byte, the hash will be completely different.
 
-2. **Search the Identity's History** — The system queries the Verus blockchain using `getidentityhistory`, retrieving every update ever made to that VerusID. It scans each update for the `proof.basic` key and compares stored hashes against the computed hash.
+2. **Search the Identity's History** — The system queries the Verus blockchain using `getidentityhistory`, retrieving every update ever made to that VerusID. It scans each update for the `proof.basic` VDXF key and compares stored hashes against the computed hash.
 
 3. **Confirm the Block** — If a match is found, the system retrieves the block that contains the transaction. The block time is the proof — the consensus-agreed moment when that block was mined and your hash was inside it.
 
@@ -44,7 +48,7 @@ Anyone can verify a timestamp. No login. No account. No special access. Just the
 | Claim someone else's | The timestamp is on a specific VerusID. Only the identity owner can sign `updateidentity` transactions. |
 | Forge a matching document | SHA-256 is collision-resistant. No known method exists to produce two different documents with the same hash. |
 | Forge the verification | Anyone can run their own verification against the public blockchain. There's no single authority to compromise. |
-| Delete a timestamp | Blockchain data is append-only. Historical identity states are preserved in the chain's history forever. |
+| Delete a timestamp | Even if a later update clears the current-state view, every past identity update is preserved forever in the chain's history. The original timestamp remains discoverable via `getidentityhistory`. |
 
 ### Privacy by Design
 
@@ -62,16 +66,16 @@ The hash is a one-way function. Given the hash, no one can determine whether the
 
 ### vs Traditional Methods
 
-| | vtimestamp | Traditional Notary | Centralized Service | Bitcoin OP_RETURN |
-|---|---|---|---|---|
-| Document privacy | Hash only, never uploaded | Document seen by notary | Document often uploaded | Hash only |
-| Proof ownership | Your VerusID | Paper certificate | Service account | Bitcoin address |
-| Verification | Anyone, anytime, free | Requires notary records | Requires service to exist | Anyone with Bitcoin node |
-| Metadata | Title, description, filename on-chain | Notary's records | Service database | Raw hash only |
-| Cost | Verus tx fee (~0.0001 VRSC) | Notary fee ($5-50+) | Subscription / per-stamp fee | Bitcoin tx fee (variable) |
-| Identity | Self-sovereign VerusID | Government ID | Email / password | Pseudonymous address |
-| Durability | Blockchain permanent | Paper degrades | Company may shut down | Blockchain permanent |
-| Human readable | Yes (metadata + explorer) | Yes (paper document) | Depends on service | No (raw hex data) |
+| | vtimestamp | Traditional Notary | Centralized Service | RFC 3161 TSA | Bitcoin (OpenTimestamps) |
+|---|---|---|---|---|---|
+| Document privacy | Hash only, never uploaded | Document seen by notary | Document often uploaded | Hash only (sent to TSA) | Hash only (client-side) |
+| Proof ownership | Your VerusID | Paper certificate | Service account | Signed time-stamp token file | A `.ots` file you keep |
+| Verification | Anyone, anytime, free | Requires notary records | Requires service to exist | Requires TSA certificate chain | Anyone with the `.ots` file + a Bitcoin node |
+| Metadata | Title, description, filename on-chain | Notary's records | Service database | None (hash + time only) | None (hash only) |
+| Cost | Verus tx fee (~0.0003 VRSC) | Notary fee ($5-50+) | Subscription / per-stamp fee | Free to per-stamp (commercial TSAs charge) | Free (aggregated via Merkle tree) |
+| Identity | Self-sovereign VerusID | Government ID | Email / password | TSA-signed (no user identity) | None |
+| Durability | Blockchain permanent | Paper degrades | Company may shut down | TSA cert expiration / TSA shutdown risk | Blockchain permanent; `.ots` file must be kept |
+| Human readable | Yes (metadata + explorer) | Yes (paper document) | Depends on service | No (binary token) | No (hash and proof file) |
 
 ### vs Other Blockchains
 
@@ -81,16 +85,30 @@ The hash is a one-way function. Given the hash, no one can determine whether the
 | Smart contract needed? | No | Yes | No (Memo Program) | No | No | Yes |
 | Identity | VerusID (native, self-sovereign) | ENS (.eth) — separate system | SNS (.sol) — separate system | ADA Handle / Atala PRISM | DID via HCS | SuiNS (.sui) — separate system |
 | Identity is native? | Yes — built into the protocol | No — ENS is a smart contract | No — SNS is a program | Partial — handles are native tokens | No — DID is an application layer | No — SuiNS is a Move module |
-| Cost per timestamp | 0.0001 VRSC (stable) | 21,000-41,000 gas + variable gwei (volatile) | 0.000005 SOL | ~0.18 ADA | ~$0.0008 USD (fixed) | ~0.001-0.01 SUI |
+| Cost per timestamp | 0.0003 VRSC (stable) | 21,000-41,000 gas + variable gwei (volatile) | 0.000005 SOL | ~0.18 ADA | ~$0.0008 USD (fixed) | ~0.001-0.01 SUI |
+| Cost predictability | Stable (fixed fee) | Volatile (gas market) | Stable (low base fee) | Stable (formula-based) | Fixed USD schedule | Stable (low fees) |
 | Structured metadata | Yes — VDXF DataDescriptors with typed labels | No — you design your own contract storage | Limited — 566 bytes in memo | Yes — native JSON metadata | Yes — up to 1KB per message | Yes — Move struct fields |
 | Data lives on | Your VerusID (you own it) | A smart contract (contract owner controls) | Transaction logs or program account | Transaction record | Mirror nodes (not consensus nodes) | Sui objects (can be owned/frozen) |
+| Who owns the proof? | You — it's on your identity | Contract determines access | Your wallet signed it | Your wallet signed it | Topic creator controls submit access | Object owner |
 | Verification | Anyone, any Verus node | Anyone, any Ethereum node | Anyone, any Solana node | Anyone, any Cardano node | Mirror nodes (not fully permissionless) | Anyone, any Sui node |
 | Document privacy | Hash only — client-side, never leaves device | Depends on dApp — hash or full upload | Hash only | Hash only | Hash only — up to 1KB visible on mirror nodes | Hash only |
-| Existing timestamping dApps | vtimestamp | DocStamp, OriginStamp | Research prototypes only | Stampd.io | docStribute | None found |
+| Existing timestamping dApps | vtimestamp | OriginStamp, CryptoProof (timestamp.com), ScoreDetect | Research prototypes only | No dedicated service found | No verified service found | None found |
+
+### What Stands Out
+
+**Verus vs Ethereum:** Ethereum requires deploying a smart contract to store timestamps, and ENS is a separate system you opt into. On Verus, identity and structured data storage are protocol-level features. You don't deploy anything — you update your identity. Ethereum's gas costs are also unpredictable, whereas Verus uses stable, predictable transaction fees.
+
+**Verus vs Solana:** Solana is extremely cheap and fast, but the Memo Program gives you 566 bytes of unstructured text. No native identity or structured metadata. You'd need a custom program for anything beyond a raw hash, and Solana's name service is a separate add-on. No production timestamping dApp exists on Solana.
+
+**Verus vs Cardano:** Cardano's native transaction metadata is genuinely good — structured JSON, no smart contract needed, cheap. The key difference: Cardano metadata lives on a transaction. Verus timestamps live on your identity. Your VerusID accumulates timestamps over time as part of your identity history — it's not just "a hash was in this transaction" but "this identity recorded this hash."
+
+**Verus vs Hedera:** Hedera's HCS is purpose-built for this kind of thing and is very cheap. The tradeoff is decentralization: you can't run a consensus node (only governing council members can), and message data is stored on mirror nodes rather than consensus nodes. Verus is fully permissionless — anyone can run a node and verify directly.
+
+**Verus vs Bitcoin / OpenTimestamps:** OpenTimestamps has been the standard for Bitcoin timestamping for nearly a decade. It's free — millions of timestamps aggregate into a single Bitcoin transaction via Merkle trees — and runs on a clean, blockchain-agnostic open protocol. Its tradeoffs are scope: timestamps are hash-only with no identity or structured metadata, and each proof is a `.ots` file you have to keep alongside your document to verify. Verus trades free-per-timestamp for identity-attributed, structured, self-contained proofs that live on your VerusID — nothing extra to keep. OTS is excellent for "did this exist?" Verus is better for "who recorded this, with what context, and how can anyone find it again?"
 
 ### The Identity Difference
 
-The recurring theme across all comparisons: on other chains, identity is an add-on. On Verus, identity is the foundation.
+On other chains, identity is an add-on. On Verus, identity is the foundation.
 
 Every other chain starts with addresses — long hex strings — and bolts on naming services as optional layers. Your timestamp is tied to a wallet address first, a human-readable name second (if at all).
 
@@ -103,7 +121,7 @@ On Verus, your timestamp is stored on your VerusID. The identity is the containe
 ### General
 
 **What is document timestamping?**
-Document timestamping is the process of creating cryptographic proof that a specific piece of data existed at a specific point in time. The proof is a SHA-256 hash of your document, recorded on a blockchain with a consensus-verified timestamp.
+Document timestamping is the process of creating cryptographic proof that a specific piece of data existed at a specific point in time. The proof is a SHA-256 hash of your document, recorded on a blockchain with a consensus-verified timestamp. This hash acts as a unique fingerprint — if the document changes by even a single byte, the hash is completely different.
 
 **What is vtimestamp?**
 vtimestamp is a free, open-source, decentralized timestamping service built on the Verus blockchain. It lets you prove that a document, file, or piece of text existed at a specific moment in time. Your documents never leave your device — only a hash is published. The proof is stored permanently on-chain, tied to your VerusID, and can be verified by anyone without needing an account or trusting any service.
@@ -111,74 +129,89 @@ vtimestamp is a free, open-source, decentralized timestamping service built on t
 **How is this different from a notary?**
 A traditional notary is a state-appointed official who verifies identity, confirms willingness, and witnesses signing. Blockchain timestamping proves something different: that a specific document existed at a specific time, possessed by a specific identity. It does not verify the signer's legal identity or mental state. Timestamping complements notarization but does not replace it where legally required.
 
+**How is this different from OpenTimestamps?**
+OpenTimestamps (OTS) is a well-established, free protocol for Bitcoin-based timestamping. It aggregates millions of timestamps into a single Bitcoin transaction via Merkle trees, making it excellent and cheap for proving a hash existed at a point in time. Key differences: OTS is hash-only with no identity binding or structured metadata; each OTS proof is a `.ots` file you keep alongside your document; vtimestamp stores the full record on your VerusID with structured metadata, so anyone can query your identity's timestamp history in one call — nothing extra to keep. Use OTS when hash existence alone is what you need. Use vtimestamp when attribution and context matter.
+
+**Is a blockchain timestamp legally recognized?**
+It depends on jurisdiction and context. A vtimestamp is cryptographic proof that specific data existed at a specific time, recorded on a public blockchain by a specific identity. That's strong corroborating evidence — but it is not legal registration, not formal notarization, and not a substitute for government-recognized IP protection like patent filings. Admissibility varies, and some jurisdictions accept blockchain-based evidence more readily than others. For matters with legal stakes, consult legal counsel in your jurisdiction.
+
+**Why Verus? What makes this blockchain different?**
+Verus has a few unusual design choices that make it well-suited to timestamping. Identity is native to the protocol — VerusID is built into consensus, not a smart contract bolted on top. There are no smart contracts at all — Verus uses "smart transactions" validated by consensus directly, so there's no VM, no gas, and no contract vulnerabilities. Structured, typed data (VDXF) is a first-class feature, so applications like vtimestamp can store rich metadata alongside hashes with standardized namespaced keys. And fees are stable and predictable — no volatile gas markets.
+
 ### Privacy & Security
 
 **Are my documents uploaded to the blockchain?**
 No. Your documents never leave your device. vtimestamp computes a SHA-256 hash of your file or text entirely in your browser using the Web Crypto API. Only this hash (a 64-character string) is stored on the blockchain. No one can reconstruct your document from the hash.
 
 **What information is public?**
-The SHA-256 hash, the title you chose, any description you wrote, the filename and file size (if provided), the block time and height, and your VerusID name are all public on the blockchain. The actual document contents remain private.
+The SHA-256 hash, the title you chose, any description you wrote, the filename and file size (if provided), the block time and height, and your VerusID name are all public on the blockchain. The actual document contents remain private — only you have the original file.
 
 **Can a timestamp be faked or backdated?**
-No. The block time is set by blockchain consensus — you can't insert data into a past block. Each identity update is a separate, immutable transaction. SHA-256 is collision-resistant, so no one can produce a different document with the same hash.
+No. The block time is set by blockchain consensus — you can't insert data into a past block. Each identity update is a separate, immutable transaction. SHA-256 is collision-resistant, so no one can produce a different document with the same hash. And anyone can independently verify against the public blockchain, so there's no single authority to compromise.
 
 ### Using vtimestamp
 
 **What is a VerusID?**
-A VerusID is a self-sovereign identity on the Verus blockchain. It's a human-readable name (like `alice@`) that you own and control — no company or government manages it for you. Your VerusID is used to sign timestamps, proving that you are the one who created the proof.
+A VerusID is a self-sovereign identity on the Verus blockchain. It's a human-readable name (like `alice@`) that you own and control — no company or government manages it for you. Your VerusID is used to sign timestamps, proving that you are the one who created the proof. You manage your VerusID through Verus Mobile or the Verus Desktop wallet.
 
 **How do I get a VerusID?**
-You can register a VerusID through the Verus Desktop wallet or through an ID provisioning service. A root-level VerusID costs 100 VRSC (which is locked in your identity, not spent). SubIDs — identities registered under a parent currency — work just as well for timestamping and can vary in price, with the lowest costing less than one cent. Visit verus.io to get started.
+You can register a VerusID through the Verus Desktop wallet or through an ID provisioning service. A root-level VerusID costs 100 VRSC (which is locked in your identity, not spent). SubIDs — identities registered under a parent currency — work just as well for timestamping and can vary in price, with the lowest costing less than one cent. Once registered, your VerusID is yours permanently — it's controlled by your private keys and can't be taken away. Visit verus.io to get started.
+
+**What if I lose access to my VerusID?**
+VerusID supports revocation and recovery at the protocol level — you can configure a separate recovery authority when you create your identity (or update it later). If your primary keys are compromised or lost, the recovery authority can re-issue control with new keys, and your entire timestamp history is preserved. Your identity isn't tied to a specific key — it's tied to your ID, and you can rotate keys without losing your history. This is a significant advantage over address-based systems where losing the key means losing everything.
 
 **Can I timestamp any file type?**
-Yes. vtimestamp hashes the raw bytes of any file — PDFs, images, audio, video, code, archives, or any other format. You can also paste text directly.
+Yes. vtimestamp hashes the raw bytes of any file — PDFs, images, audio, video, code, archives, or any other format. You can also paste text directly. The hash is computed entirely in your browser, so there's no file size limit imposed by the service (though very large files may take longer to hash).
 
 **How much does it cost?**
-vtimestamp itself is free. The only cost is the Verus blockchain transaction fee of approximately 0.0001 VRSC per timestamp, paid from your wallet when you approve the transaction.
+vtimestamp itself is free. The only cost is the Verus blockchain transaction fee of approximately 0.0003 VRSC per timestamp (0.0001 VRSC base fee plus a small amount for the structured data), paid from your wallet when you approve the transaction. There are no subscriptions, no per-stamp fees, and no hidden costs.
 
 **How do I verify a timestamp?**
-Go to the Verify page (https://vtimestamp.com/verify), enter the VerusID name, and upload the same file (or paste the same text). The system computes the hash, searches the identity's blockchain history for a match, and shows you the timestamp details. No login required.
+Go to the Verify page (https://vtimestamp.com/verify), enter the VerusID name, and upload the same file (or paste the same text). The system computes the hash, searches the identity's blockchain history for a match, and shows you the timestamp details including block time, height, and transaction ID. No login required.
 
 **What happens if vtimestamp shuts down?**
-Your timestamps survive. They're stored on the Verus blockchain, not on vtimestamp's servers. Anyone can verify them using a Verus node and the `getidentityhistory` RPC command.
+Your timestamps survive. They're stored on the Verus blockchain, not on vtimestamp's servers. Anyone can verify them using a Verus node — either `getidentityhistory` (for per-timestamp block details) or `getidentitycontent` (to list accumulated timestamps for an identity). The data is decentralized and permanent — the service is just a convenience layer on top of the blockchain.
 
 **What if I lose the original file?**
-You won't be able to verify the timestamp. Verification works by hashing the original file and comparing it to the hash stored on the blockchain — if you no longer have the exact original file, there's no way to recompute the hash. Keep your original files safe.
+You won't be able to verify the timestamp. Verification works by hashing the original file and comparing it to the hash stored on the blockchain — if you no longer have the exact original file, there's no way to recompute the hash. vtimestamp stores only the hash, not your document. Keep your original files safe.
 
 ### Technical
 
 **What is a SHA-256 hash?**
-SHA-256 (Secure Hash Algorithm 256-bit) is a cryptographic function that takes any input and produces a fixed 64-character hexadecimal string. It's a one-way function: you can't reverse it to get the original data. Even a tiny change to the input produces a completely different hash.
+SHA-256 (Secure Hash Algorithm 256-bit) is a cryptographic function that takes any input and produces a fixed 64-character hexadecimal string. It's a one-way function: you can't reverse it to get the original data. Even a tiny change to the input produces a completely different hash. SHA-256 is used widely in security, including Bitcoin and most blockchain systems.
 
 **What is VDXF?**
-VDXF (Verus Data Exchange Format) is a protocol-level system for structured, typed data on the Verus blockchain. It provides namespaced keys, DataDescriptors with typed labels, and a standardized way to store and retrieve structured data on identities. vtimestamp uses VDXF to store timestamp data under the `proof.basic` key.
+VDXF (Verus Data Exchange Format) is a protocol-level system for structured, typed data on the Verus blockchain. It provides namespaced keys, DataDescriptors with typed labels, and a standardized way to store and retrieve structured data on identities. vtimestamp uses VDXF to store timestamp data in a consistent, discoverable format under the `proof.basic` key.
 
 **Can I verify without the vtimestamp website?**
-Yes. You can use the Verus CLI to query any identity's history directly. Run `verus getidentityhistory "identity@"` to see all updates, then look for entries with the `proof.basic` VDXF key.
+Yes. You can use the Verus CLI to query any identity's history directly. Run `verus getidentityhistory "identity@"` to see all updates, then look for entries with the `proof.basic` VDXF key. Each entry includes the block hash and height, which you can use with `verus getblock` to confirm the exact timestamp.
 
 ---
 
 ## Use Cases
 
-Timestamping proves one thing: this data existed before this moment. That single guarantee has real applications across industries and personal use.
+Timestamping proves one thing: this data existed as of this moment. That single guarantee has real applications across industries and personal use.
 
 ### Intellectual Property
 Patents, inventions, trade secrets, and novel designs. Timestamp your ideas before filing formal applications to document prior art. An independent inventor documents a novel mechanism. Six months later, a competitor files a patent for something similar. The inventor's vtimestamp — recorded months before the filing date — provides dated, identity-bound evidence that could help invalidate the competitor's claim of novelty.
 
 ### Legal Documents
-Contracts, agreements, notices, and terms of service. Establish when specific terms were created or agreed upon. A freelancer and client agree on project terms via a written contract. Each party independently timestamps the final document on their own VerusID. If a dispute arises about what was agreed, the timestamps prove the exact version of the contract that each party had at the time.
+Contracts, agreements, notices, and terms of service. Establish when specific terms were created or agreed upon. A freelancer and client agree on project terms via a written contract. Each party independently timestamps the final document on their own VerusID. If a dispute arises, the timestamps prove the exact version of the contract each party had at the time.
 
 ### Research & Science
 Experimental data, datasets, findings, and lab notebooks. Record when results were produced to establish research priority. A researcher produces novel findings and timestamps their data and analysis before publishing. When a priority dispute arises with another lab, the blockchain timestamp provides third-party-independent proof of when the research existed.
 
 ### Creative Work
-Art, music, code, writing, photography, and design. Prove authorship timing for any creative output. A musician writes and records an original composition, then timestamps the audio file. Months later, a similar track appears. The vtimestamp provides dated proof that the musician's version existed first.
+Art, music, code, writing, photography, and design. Prove authorship timing for any creative output. Developers can also timestamp specific code commits, release artifacts, or open-source contributions to establish authorship and integrity of the exact bytes at the exact time. A musician writes and records an original composition, then timestamps the audio file. Months later, a similar track appears. The vtimestamp provides dated proof that the musician's version existed first.
+
+### AI-Era Authenticity
+Prove content is human-created and original — before AI-generated imitations, deepfakes, or altered versions can muddy the record. Critical for photos, video, audio, journalism, and any media where provenance matters. A photojournalist timestamps raw photos immediately after capture. Weeks later, a manipulated or AI-generated version circulates online. The vtimestamp proves the authentic original existed first and hasn't been altered — evidence that's increasingly essential as generative models make synthetic media harder to distinguish from real.
 
 ### Compliance & Regulation
-Audit trails, regulatory records, and policy documentation. Demonstrate that records existed at required dates. A company timestamps its compliance documents at regular intervals. During an audit, the timestamps demonstrate that specific policies and records existed at the required dates — with proof that doesn't depend on the company's own internal systems.
+Audit trails, regulatory records, and policy documentation. Demonstrate that records existed at required dates. A company timestamps its compliance documents at regular intervals. During an audit, the timestamps demonstrate that specific policies and records existed at the required dates — with proof that doesn't depend on the company's own internal systems or self-reported dates.
 
 ### Personal Records
-Anything you might need to prove later — personal documentation, important correspondence, or records of events. A tenant documents the condition of an apartment with photos and a written description at move-in. Timestamping these records creates independent proof of the property's state at that date.
+Anything you might need to prove later — personal documentation, important correspondence, photos or video of events, dashcam footage, accident documentation, or records of property condition. A tenant documents the condition of an apartment with photos and a written description at move-in. Timestamping these records creates independent proof of the property's state at that date.
 
 **Disclaimer:** vtimestamp provides cryptographic proof of document existence at a point in time. It is not legal registration, notarization, or a substitute for formal IP protection. Admissibility and legal standing vary by jurisdiction. Consult legal counsel for important matters.
 
@@ -186,21 +219,22 @@ Anything you might need to prove later — personal documentation, important cor
 
 ## About vtimestamp
 
-vtimestamp is a free service that creates cryptographic proof your documents existed at a specific moment in time. The proof is stored permanently on the Verus blockchain, tied to your self-sovereign VerusID.
+vtimestamp is a free, open-source service that creates cryptographic proof your documents existed at a specific moment in time. The proof is stored permanently on the Verus blockchain, tied to your self-sovereign VerusID.
 
 Your documents never leave your device — only a SHA-256 hash is published. Anyone can verify your timestamps without needing an account, trusting a company, or relying on any centralized service.
 
-The mission is simple: make document timestamping accessible, private, and permanent. No subscriptions, no gatekeepers, no databases that can disappear.
+The mission is simple: make document timestamping accessible, private, and permanent. No subscriptions, no accounts, no gatekeepers, no databases that can disappear. The only cost is a tiny blockchain transaction fee — approximately 0.0003 VRSC per timestamp, a fraction of a cent.
 
-vtimestamp runs on Verus mainnet for production use, and is also available on testnet for trying it out.
+Try it at https://vtimestamp.com — mainnet is live, and https://test.vtimestamp.com is available if you want to experiment first.
 
 ### Built on Verus
 
-vtimestamp is built on the Verus blockchain — a public, open-source, community-driven network with unique features for timestamping:
+vtimestamp is built on the Verus blockchain — a public, open-source, community-driven network. Unlike most chains, Verus builds identity, structured data storage, and other application primitives directly into the protocol — so services like vtimestamp work without smart contracts.
 
-- **Native Identity (VerusID):** Self-sovereign identities built into the protocol. Your timestamps are tied to a human-readable name you own — not a hex address.
+- **Native Identity (VerusID):** Self-sovereign identities built into the protocol. You own your VerusID outright — no rental, no recurring fees to keep it, and you can sell or trade it peer-to-peer on Verus's on-chain marketplace. Revocation and recovery are supported, so you can rotate keys without losing your timestamp history.
+- **No Smart Contracts:** Timestamps are a native Verus transaction (`updateidentity`) — no VM, no gas, no contract to deploy or audit. Cheaper, simpler, and fewer things that can go wrong.
 - **VDXF Data Format:** Structured, typed data storage with namespaced keys. Timestamps are stored in a standardized, discoverable format — not raw hex blobs.
-- **Low Cost:** Transaction fees are approximately 0.0001 VRSC per timestamp. Costs are stable and predictable — no volatile gas markets.
+- **Low Cost:** Transaction fees are approximately 0.0003 VRSC per timestamp. Costs are stable and predictable — no volatile gas markets.
 - **Permissionless:** Anyone can run a Verus node and verify timestamps directly. No company, council, or authority gates access to the data.
 
 ### Open Source
@@ -227,18 +261,18 @@ Timestamps are stored on each user's VerusID `contentmultimap` under the `proof.
 ```
 contentmultimap: {
   "proof.basic": [
-    { dataDescriptor: { label: ".sha256",      objectdata: "a7f3b2c1d4e5..." } },
-    { dataDescriptor: { label: ".title",       objectdata: "Q4 Financial Report" } },
-    { dataDescriptor: { label: ".description", objectdata: "Final approved version" } },
-    { dataDescriptor: { label: ".filename",    objectdata: "quarterly-report.pdf" } },
-    { dataDescriptor: { label: ".filesize",    objectdata: "2097152" } }
+    { dataDescriptor: { label: ".sha256",      objectdata: { message: "a7f3b2c1d4e5..." } } },
+    { dataDescriptor: { label: ".title",       objectdata: { message: "Q4 Financial Report" } } },
+    { dataDescriptor: { label: ".description", objectdata: { message: "Final approved version" } } },
+    { dataDescriptor: { label: ".filename",    objectdata: { message: "quarterly-report.pdf" } } },
+    { dataDescriptor: { label: ".filesize",    objectdata: { message: "2097152" } } }
   ]
 }
 ```
 
-The outer key (`proof.basic`) is a VDXF key — a deterministic i-address derived from the namespace. On testnet this is `testidx.vrsctest::proof.basic`, on mainnet `vtimestamp.vrsc::proof.basic`. The labels (`.sha256`, `.title`, etc.) are shorthand — on-chain, these are represented as i-addresses.
+Important: the actual value in each DataDescriptor lives at `objectdata.message`, not at `objectdata` directly. The outer key (`proof.basic`) is a VDXF key — a deterministic i-address derived from the namespace. On testnet this is `testidx.vrsctest::proof.basic`, on mainnet `vtimestamp.vrsc::proof.basic`. The labels (`.sha256`, `.title`, etc.) are shorthand — on-chain, these are represented as i-addresses.
 
-Each DataDescriptor also includes a `mimetype` field set to `text/plain` for all fields, and a `version` field.
+Each DataDescriptor also includes a `mimetype` field set to `text/plain` for all fields, a `flags` field, and a `version` field.
 
 **Fields:**
 - `.sha256` — SHA-256 hash (required, 64 hex chars)
@@ -247,7 +281,7 @@ Each DataDescriptor also includes a `mimetype` field set to `text/plain` for all
 - `.filename` — Original filename (optional)
 - `.filesize` — File size in bytes as string (optional)
 
-**Timestamp Derivation:** The timestamp itself is not stored — it's derived from the block that contains the transaction. Use `getblock` with the block hash from `getidentityhistory` to get the block time (Unix timestamp) and height.
+**Timestamp Derivation:** The block time itself is not stored in identity data — it's derived from the block that contains the transaction. Use `getblock` with the block hash from `getidentityhistory` to get the block time (Unix timestamp) and height.
 
 ### VDXF Key Reference
 
@@ -267,22 +301,36 @@ Testnet keys use the `testidx.vrsctest::` namespace. Mainnet keys use the `vtime
 
 ### Verifying Programmatically
 
-You can verify timestamps using the Verus CLI without the vtimestamp website.
+You can verify timestamps using the Verus CLI without the vtimestamp website. The primary call is `getidentityhistory`, which gives you per-update block info needed to prove when a timestamp was recorded.
 
 **Step 1: Get Identity History**
 ```
-verus getidentityhistory "alice@" 0 0 0 0
+verus getidentityhistory "alice@"
 ```
-The parameters are: identity, startHeight, endHeight, txCount, txsToSkip. Using 0 for all returns the full history.
+Returns every `updateidentity` transaction for that identity. Each history entry includes `height`, `blockhash`, the full identity state at that point (including `contentmultimap`), and `output.txid`. Optional trailing arguments can narrow the height range; omitting them returns the full history.
 
 **Step 2: Find Timestamp Entries**
-Look for entries where `contentmultimap` contains the `proof.basic` key. Parse the DataDescriptor array to find entries where the `label` matches the `.sha256` i-address for your network. Compare the `objectdata` value against your computed hash (case-insensitive).
+Look for entries where `identity.contentmultimap` contains the `proof.basic` key (use the appropriate i-address for your network). Parse each DataDescriptor. Important: the field value lives at `objectdata.message`, not at `objectdata` directly. Match each descriptor's `label` against the known i-addresses (`.sha256`, `.title`, etc.) and compare the hash case-insensitively.
 
 **Step 3: Get Block Time**
 ```
 verus getblock "blockhash_from_history"
 ```
-The `time` field in the block response is the Unix timestamp — the consensus-verified moment when that block was mined.
+The `time` field in the block response is the Unix timestamp — the consensus-verified moment when the block was mined. Neither `getidentityhistory` nor `getidentitycontent` returns block time directly. It must come from the block itself via `getblock` (or `getblockheader`).
+
+### Alternative: Using getidentitycontent
+
+`getidentitycontent` returns the accumulated contentmultimap for an identity and supports filtering by VDXF key. It's more ergonomic when you just want to list an identity's current timestamps — no need to iterate history entries:
+
+```
+verus getidentitycontent "alice@" 0 0 false 0 "vtimestamp.vrsc::proof.basic"
+```
+
+The trailing argument filters results to just `proof.basic` entries. Use `testidx.vrsctest::proof.basic` on testnet.
+
+**Important caveat:** `getidentitycontent`'s top-level `blockheight` and `txid` refer only to the identity's latest update — not to any specific entry inside the contentmultimap. If you want to know when a particular hash was recorded, you must use `getidentityhistory` to find the exact updateidentity transaction that added it, then call `getblock` against that entry's `blockhash`.
+
+**When to use which:** Use `getidentitycontent` for "show me this identity's current timestamps." Use `getidentityhistory` when you need per-timestamp recording times — which is the core of timestamp verification and what vtimestamp's own verify page does.
 
 ### MCP Server Integration
 
