@@ -20,7 +20,7 @@ import {
 // @ts-ignore - no types available
 import { BN } from 'bn.js';
 import { env } from '$env/dynamic/private';
-import { VERUS_RPC } from '../config';
+import { VERUS_RPC } from './rpc-config';
 import { getIdentity } from './verus';
 import { buildTimestampContentMap, type CreateTimestampInput } from '../vdxf';
 
@@ -39,7 +39,7 @@ const CHAIN_IDS = {
  */
 function getVerusIdInterface(): VerusIdInterface {
   const chainId = CHAIN_IDS[VERUS_RPC.chainId === 'vrsctest' ? 'testnet' : 'mainnet'];
-  return new VerusIdInterface(chainId, VERUS_RPC.endpoint);
+  return new VerusIdInterface(chainId, VERUS_RPC.endpoints[0]);
 }
 
 /**

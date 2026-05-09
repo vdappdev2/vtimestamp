@@ -5,7 +5,7 @@
  * This module should only be imported in server-side code (+server.ts files).
  */
 
-import { VERUS_RPC } from '../config';
+import { VERUS_RPC } from './rpc-config';
 
 /**
  * RPC Error with code and message from daemon
@@ -86,28 +86,31 @@ async function rpcCallToEndpoint<T>(
 }
 
 /**
- * Make a raw RPC call to Verus daemon with automatic fallback
- *
- * Tries the primary endpoint first, falls back to secondary on network errors.
- * RPC errors (like identity not found) are NOT retried on fallback.
+ * Make a raw RPC call, walking the configured endpoint list on network errors.
+ * RPC errors (like -5 not found, -32601 method not whitelisted) are NOT retried
+ * — they're authoritative responses from the daemon.
  */
 async function rpcCall<T>(method: string, params: unknown[] = []): Promise<T> {
-  try {
-    return await rpcCallToEndpoint<T>(VERUS_RPC.endpoint, method, params);
-  } catch (error) {
-    // Don't retry RPC errors (these are valid responses from the daemon)
-    if (error instanceof VerusRpcError) {
-      throw error;
-    }
+  const endpoints = VERUS_RPC.endpoints;
+  let lastNetworkError: unknown;
 
-    // Try fallback for network/timeout errors
-    if (VERUS_RPC.fallbackEndpoint) {
-      console.log(`Primary RPC failed, trying fallback: ${VERUS_RPC.fallbackEndpoint}`);
-      return await rpcCallToEndpoint<T>(VERUS_RPC.fallbackEndpoint, method, params);
+  for (let i = 0; i < endpoints.length; i++) {
+    const endpoint = endpoints[i];
+    try {
+      return await rpcCallToEndpoint<T>(endpoint, method, params);
+    } catch (error) {
+      if (error instanceof VerusRpcError) {
+        throw error;
+      }
+      lastNetworkError = error;
+      const next = endpoints[i + 1];
+      if (next) {
+        console.log(`RPC endpoint ${endpoint} failed, trying next: ${next}`);
+      }
     }
-
-    throw error;
   }
+
+  throw lastNetworkError ?? new Error(`No RPC endpoints configured for ${method}`);
 }
 
 // ============================================================================
@@ -116,13 +119,32 @@ async function rpcCall<T>(method: string, params: unknown[] = []): Promise<T> {
 
 /**
  * DataDescriptor structure from contentmultimap
+ *
+ * Encrypted descriptors (flags:13 / 5 / 37) carry ciphertext as a hex string in
+ * `objectdata`; plaintext descriptors (flags:0) carry { message: string } or a
+ * raw number. `epk`/`ivk`/`salt` are present when the corresponding flag bits
+ * are set.
  */
 export interface DataDescriptor {
   version: number;
   flags: number;
-  objectdata: { message: string } | number | null;
+  objectdata: { message: string } | number | string | null;
   label?: string;
   mimetype?: string;
+  epk?: string;
+  ivk?: string;
+  salt?: string;
+}
+
+/**
+ * Decrypted form of a flags:13 entry, returned by `decryptdata` with
+ * `retrieve: true`. Plaintext bytes live as hex in `objectdata`.
+ */
+export interface DecryptedDataDescriptor {
+  version: number;
+  flags: number;
+  objectdata: string;
+  salt?: string;
 }
 
 /**
@@ -271,4 +293,22 @@ export interface GetIdentityResponse {
  */
 export async function getIdentity(identity: string): Promise<GetIdentityResponse> {
   return rpcCall<GetIdentityResponse>('getidentity', [identity]);
+}
+
+/**
+ * Decrypt an on-chain flags:13 DataDescriptor produced by the daemon's
+ * `{data:{}}` envelope. `retrieve: true` follows the indirect reference back
+ * to the ciphertext stored in the originating updateidentity transaction.
+ *
+ * @param datadescriptor - The DataDescriptor as it appears under getidentity
+ * @param txid - The transaction id that wrote the entry
+ * @returns Array of decrypted descriptors (single element for non-MMR entries)
+ */
+export async function decryptData(
+  datadescriptor: DataDescriptor,
+  txid: string,
+): Promise<DecryptedDataDescriptor[]> {
+  return rpcCall<DecryptedDataDescriptor[]>('decryptdata', [
+    { datadescriptor, txid, retrieve: true },
+  ]);
 }

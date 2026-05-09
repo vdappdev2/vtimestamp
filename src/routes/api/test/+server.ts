@@ -16,13 +16,13 @@ import {
   RPC_ERROR_CODES,
 } from '$lib/server/verus';
 import { parseAllTimestamps } from '$lib/vdxf';
-import { VERUS_RPC } from '$lib/config';
+import { VERUS_RPC } from '$lib/server/rpc-config';
 
 export const GET: RequestHandler = async ({ url }) => {
   const identity = url.searchParams.get('identity');
 
   const results: Record<string, unknown> = {
-    endpoint: VERUS_RPC.endpoint,
+    endpoints: VERUS_RPC.endpoints,
     tests: {},
   };
 
@@ -58,7 +58,7 @@ export const GET: RequestHandler = async ({ url }) => {
   if (identity) {
     try {
       const history = await getIdentityHistory(identity);
-      const timestamps = parseAllTimestamps(history.history);
+      const timestamps = await parseAllTimestamps(history.history);
 
       // Get block time for first timestamp if exists
       let firstTimestampWithBlockTime = null;

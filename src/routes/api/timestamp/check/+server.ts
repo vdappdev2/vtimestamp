@@ -30,7 +30,7 @@ export const GET: RequestHandler = async ({ url }) => {
     const history = await getIdentityHistory(identity);
 
     // Search for existing timestamp with this hash
-    const existing = findTimestampByHash(history.history, sha256);
+    const existing = await findTimestampByHash(history.history, sha256);
 
     if (existing) {
       return json({

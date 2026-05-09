@@ -10,20 +10,6 @@ import { PUBLIC_VERUS_NETWORK, PUBLIC_SWITCH_NETWORK_URL } from '$env/static/pub
 export const isDev = import.meta.env.DEV;
 export const isProd = import.meta.env.PROD;
 
-/**
- * Verus RPC Configuration
- */
-export const RPC_ENDPOINTS = {
-  testnet: {
-    primary: 'https://api.verustest.net',
-    fallback: 'https://rpc.vrsc.syncproof.net',
-  },
-  mainnet: {
-    primary: 'https://api.verus.services',
-    fallback: 'https://rpc.vrsc.syncproof.net',
-  },
-};
-
 // Current network - read from environment variable
 export const CURRENT_NETWORK: 'testnet' | 'mainnet' =
   PUBLIC_VERUS_NETWORK === 'mainnet' ? 'mainnet' : 'testnet';
@@ -31,17 +17,9 @@ export const CURRENT_NETWORK: 'testnet' | 'mainnet' =
 // URL of the other network's deployment (for the switch link)
 export const SWITCH_NETWORK_URL = PUBLIC_SWITCH_NETWORK_URL || '';
 
-export const VERUS_RPC = {
-  // Public daemon RPC endpoints (primary with fallback)
-  endpoint: RPC_ENDPOINTS[CURRENT_NETWORK].primary,
-  fallbackEndpoint: RPC_ENDPOINTS[CURRENT_NETWORK].fallback,
-
-  // Chain ID
-  chainId: CURRENT_NETWORK === 'testnet' ? 'vrsctest' : 'vrsc',
-
-  // Request timeout in milliseconds
-  timeout: 30000,
-};
+// RPC endpoint configuration lives in lib/server/rpc-config.ts because it
+// reads from $env/dynamic/private (server-only) and config.ts is also
+// imported by client code. See that file for the env-var contract.
 
 /**
  * VDXF Key Constants

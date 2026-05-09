@@ -21,7 +21,7 @@ export const GET: RequestHandler = async ({ url }) => {
     const history = await getIdentityHistory(identity);
 
     // Parse all timestamps from history
-    const timestamps = parseAllTimestamps(history.history);
+    const timestamps = await parseAllTimestamps(history.history);
 
     // Enrich with block times
     const enrichedTimestamps: TimestampRecord[] = await Promise.all(

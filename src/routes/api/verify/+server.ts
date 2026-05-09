@@ -31,7 +31,7 @@ export const GET: RequestHandler = async ({ url }) => {
     const historyResponse = await getIdentityHistory(identity);
 
     // Search for timestamp with this hash
-    const timestamp = findTimestampByHash(historyResponse.history, sha256);
+    const timestamp = await findTimestampByHash(historyResponse.history, sha256);
 
     if (!timestamp) {
       return json({
