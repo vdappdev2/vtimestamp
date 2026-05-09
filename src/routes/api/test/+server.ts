@@ -15,7 +15,7 @@ import {
   VerusRpcError,
   RPC_ERROR_CODES,
 } from '$lib/server/verus';
-import { parseAllTimestamps } from '$lib/vdxf';
+import { parseAllTimestamps } from '$lib/server/vdxf';
 import { VERUS_RPC } from '$lib/server/rpc-config';
 
 export const GET: RequestHandler = async ({ url }) => {

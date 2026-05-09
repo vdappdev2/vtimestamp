@@ -7,7 +7,8 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { getIdentityHistory, getBlock } from '$lib/server/verus';
-import { parseAllTimestamps, type TimestampRecord } from '$lib/vdxf';
+import type { TimestampRecord } from '$lib/vdxf';
+import { parseAllTimestamps } from '$lib/server/vdxf';
 
 export const GET: RequestHandler = async ({ url }) => {
   const identity = url.searchParams.get('identity');

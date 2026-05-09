@@ -22,7 +22,8 @@ import { BN } from 'bn.js';
 import { env } from '$env/dynamic/private';
 import { VERUS_RPC } from './rpc-config';
 import { getIdentity } from './verus';
-import { buildTimestampContentMap, type CreateTimestampInput } from '../vdxf';
+import type { CreateTimestampInput } from '../vdxf';
+import { buildTimestampContentMap } from './vdxf';
 
 // Environment variables
 const SERVICE_IDENTITY_WIF = env.SERVICE_IDENTITY_WIF || '';
