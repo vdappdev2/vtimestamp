@@ -5,7 +5,11 @@
 > metadata on their VerusID (a self-sovereign, protocol-native blockchain
 > identity). Anyone can verify timestamps without an account. Documents never
 > leave the user's device. No smart contracts required — timestamps are stored
-> via native updateidentity transactions for approximately 0.0003 VRSC each.
+> via native updateidentity transactions as a single public-encrypted
+> DataDescriptor (flags:13) on the identity's contentmultimap, with an on-chain
+> incoming viewing key so any Verus node can decrypt and read the payload.
+> Cost is roughly 0.004–0.005 VRSC per timestamp (0.0001 VRSC base fee plus a
+> data-storage fee for the encrypted payload).
 
 ---
 
@@ -35,7 +39,7 @@ Anyone can verify a timestamp. No login. No account. No special access. Just the
 
 1. **Hash the Document** — The verifier uploads the same file (or pastes the same text). The browser computes the SHA-256 hash locally. If the document has been modified by even a single byte, the hash will be completely different.
 
-2. **Search the Identity's History** — The system queries the Verus blockchain using `getidentityhistory`, retrieving every update ever made to that VerusID. It scans each update for the `proof.basic` VDXF key and compares stored hashes against the computed hash.
+2. **Search the Identity's History** — The system queries the Verus blockchain using `getidentityhistory`, retrieving every update ever made to that VerusID. For each update with a `proof.basic` entry, it asks the Verus daemon to decrypt the payload (using the on-chain viewing key) and compares the stored hash against the computed hash.
 
 3. **Confirm the Block** — If a match is found, the system retrieves the block that contains the transaction. The block time is the proof — the consensus-agreed moment when that block was mined and your hash was inside it.
 
@@ -72,7 +76,7 @@ The hash is a one-way function. Given the hash, no one can determine whether the
 | Proof ownership | Your VerusID | Paper certificate | Service account | Signed time-stamp token file | A `.ots` file you keep |
 | Verification | Anyone, anytime, free | Requires notary records | Requires service to exist | Requires TSA certificate chain | Anyone with the `.ots` file + a Bitcoin node |
 | Metadata | Title, description, filename on-chain | Notary's records | Service database | None (hash + time only) | None (hash only) |
-| Cost | Verus tx fee (~0.0003 VRSC) | Notary fee ($5-50+) | Subscription / per-stamp fee | Free to per-stamp (commercial TSAs charge) | Free (aggregated via Merkle tree) |
+| Cost | Verus tx fees (~0.004–0.005 VRSC) | Notary fee ($5-50+) | Subscription / per-stamp fee | Free to per-stamp (commercial TSAs charge) | Free (aggregated via Merkle tree) |
 | Identity | Self-sovereign VerusID | Government ID | Email / password | TSA-signed (no user identity) | None |
 | Durability | Blockchain permanent | Paper degrades | Company may shut down | TSA cert expiration / TSA shutdown risk | Blockchain permanent; `.ots` file must be kept |
 | Human readable | Yes (metadata + explorer) | Yes (paper document) | Depends on service | No (binary token) | No (hash and proof file) |
@@ -85,7 +89,7 @@ The hash is a one-way function. Given the hash, no one can determine whether the
 | Smart contract needed? | No | Yes | No (Memo Program) | No | No | Yes |
 | Identity | VerusID (native, self-sovereign) | ENS (.eth) — separate system | SNS (.sol) — separate system | ADA Handle / Atala PRISM | DID via HCS | SuiNS (.sui) — separate system |
 | Identity is native? | Yes — built into the protocol | No — ENS is a smart contract | No — SNS is a program | Partial — handles are native tokens | No — DID is an application layer | No — SuiNS is a Move module |
-| Cost per timestamp | 0.0003 VRSC (stable) | 21,000-41,000 gas + variable gwei (volatile) | 0.000005 SOL | ~0.18 ADA | ~$0.0008 USD (fixed) | ~0.001-0.01 SUI |
+| Cost per timestamp | ~0.004–0.005 VRSC (stable) | 21,000-41,000 gas + variable gwei (volatile) | 0.000005 SOL | ~0.18 ADA | ~$0.0008 USD (fixed) | ~0.001-0.01 SUI |
 | Cost predictability | Stable (fixed fee) | Volatile (gas market) | Stable (low base fee) | Stable (formula-based) | Fixed USD schedule | Stable (low fees) |
 | Structured metadata | Yes — VDXF DataDescriptors with typed labels | No — you design your own contract storage | Limited — 566 bytes in memo | Yes — native JSON metadata | Yes — up to 1KB per message | Yes — Move struct fields |
 | Data lives on | Your VerusID (you own it) | A smart contract (contract owner controls) | Transaction logs or program account | Transaction record | Mirror nodes (not consensus nodes) | Sui objects (can be owned/frozen) |
@@ -164,7 +168,10 @@ VerusID supports revocation and recovery at the protocol level — you can confi
 Yes. vtimestamp hashes the raw bytes of any file — PDFs, images, audio, video, code, archives, or any other format. You can also paste text directly. The hash is computed entirely in your browser, so there's no file size limit imposed by the service (though very large files may take longer to hash).
 
 **How much does it cost?**
-vtimestamp itself is free. The only cost is the Verus blockchain transaction fee of approximately 0.0003 VRSC per timestamp (0.0001 VRSC base fee plus a small amount for the structured data), paid from your wallet when you approve the transaction. There are no subscriptions, no per-stamp fees, and no hidden costs.
+vtimestamp itself is free. The only cost is Verus blockchain transaction fees — a 0.0001 VRSC base fee plus a data-storage fee for the encrypted payload, totalling roughly 0.004 to 0.005 VRSC per timestamp, paid from your wallet when you approve the transaction. There are no subscriptions, no per-stamp fees, and no hidden costs.
+
+**How is timestamp data stored on chain?**
+Each timestamp is one entry under the `proof.basic` VDXF key on your VerusID's `contentmultimap`. The entry is a single DataDescriptor in public-encrypted mode (`flags: 13`): the daemon encrypts the payload with an ephemeral key and publishes the incoming viewing key (`ivk`) on-chain. Anyone with a Verus node that exposes `decryptdata` can recover the original JSON containing your hash and metadata. Encryption here is the storage convention for application data on a public VerusID — not a privacy mechanism for the metadata itself.
 
 **How do I verify a timestamp?**
 Go to the Verify page (https://vtimestamp.com/verify), enter the VerusID name, and upload the same file (or paste the same text). The system computes the hash, searches the identity's blockchain history for a match, and shows you the timestamp details including block time, height, and transaction ID. No login required.
@@ -184,7 +191,7 @@ SHA-256 (Secure Hash Algorithm 256-bit) is a cryptographic function that takes a
 VDXF (Verus Data Exchange Format) is a protocol-level system for structured, typed data on the Verus blockchain. It provides namespaced keys, DataDescriptors with typed labels, and a standardized way to store and retrieve structured data on identities. vtimestamp uses VDXF to store timestamp data in a consistent, discoverable format under the `proof.basic` key.
 
 **Can I verify without the vtimestamp website?**
-Yes. You can use the Verus CLI to query any identity's history directly. Run `verus getidentityhistory "identity@"` to see all updates, then look for entries with the `proof.basic` VDXF key. Each entry includes the block hash and height, which you can use with `verus getblock` to confirm the exact timestamp.
+Yes. Use the Verus CLI to query any identity's history directly. Run `verus getidentityhistory "identity@"` to see all updates and find entries under the `proof.basic` VDXF key. For each one, call `verus decryptdata` with the descriptor + anchoring txid + `retrieve: true` to recover the JSON payload, then `verus getblock` on the entry's blockhash to confirm the exact timestamp. `decryptdata` needs to be available on whichever RPC endpoint you use — a local Verus daemon always works.
 
 ---
 
@@ -223,7 +230,7 @@ vtimestamp is a free, open-source service that creates cryptographic proof your 
 
 Your documents never leave your device — only a SHA-256 hash is published. Anyone can verify your timestamps without needing an account, trusting a company, or relying on any centralized service.
 
-The mission is simple: make document timestamping accessible, private, and permanent. No subscriptions, no accounts, no gatekeepers, no databases that can disappear. The only cost is a tiny blockchain transaction fee — approximately 0.0003 VRSC per timestamp, a fraction of a cent.
+The mission is simple: make document timestamping accessible, private, and permanent. No subscriptions, no accounts, no gatekeepers, no databases that can disappear. The only cost is tiny Verus transaction fees — a 0.0001 VRSC base fee plus a small data-storage fee for the encrypted payload, totalling roughly 0.004 to 0.005 VRSC per timestamp.
 
 Try it at https://vtimestamp.com — mainnet is live, and https://test.vtimestamp.com is available if you want to experiment first.
 
@@ -233,8 +240,8 @@ vtimestamp is built on the Verus blockchain — a public, open-source, community
 
 - **Native Identity (VerusID):** Self-sovereign identities built into the protocol. You own your VerusID outright — no rental, no recurring fees to keep it, and you can sell or trade it peer-to-peer on Verus's on-chain marketplace. Revocation and recovery are supported, so you can rotate keys without losing your timestamp history.
 - **No Smart Contracts:** Timestamps are a native Verus transaction (`updateidentity`) — no VM, no gas, no contract to deploy or audit. Cheaper, simpler, and fewer things that can go wrong.
-- **VDXF Data Format:** Structured, typed data storage with namespaced keys. Timestamps are stored in a standardized, discoverable format — not raw hex blobs.
-- **Low Cost:** Transaction fees are approximately 0.0003 VRSC per timestamp. Costs are stable and predictable — no volatile gas markets.
+- **VDXF Data Format:** Standardized, typed envelope on the identity — a `DataDescriptor` under a namespaced VDXF key (`vtimestamp.vrsc::proof.basic`). Anyone can discover it by key and read it through one uniform path: decrypt, then parse JSON.
+- **Low Cost:** Transaction fees are roughly 0.004 to 0.005 VRSC per timestamp (a 0.0001 VRSC base fee plus a small data-storage fee for the encrypted payload). Costs are stable and predictable — no volatile gas markets.
 - **Permissionless:** Anyone can run a Verus node and verify timestamps directly. No company, council, or authority gates access to the data.
 
 ### Open Source
@@ -256,52 +263,67 @@ vtimestamp is accessible to AI agents through Model Context Protocol (MCP) serve
 
 ### On-Chain Data Structure
 
-Timestamps are stored on each user's VerusID `contentmultimap` under the `proof.basic` VDXF key. Each timestamp is an array of DataDescriptor entries:
+Each timestamp is one entry on the user's VerusID `contentmultimap` under the `proof.basic` VDXF key. The entry is a single DataDescriptor in **public-encrypted mode** (`flags: 13`): the daemon encrypts the payload with an ephemeral key and publishes the incoming viewing key (`ivk`) on-chain, so anyone can decrypt it without the original writer's keys.
 
 ```
 contentmultimap: {
   "proof.basic": [
-    { dataDescriptor: { label: ".sha256",      objectdata: { message: "a7f3b2c1d4e5..." } } },
-    { dataDescriptor: { label: ".title",       objectdata: { message: "Q4 Financial Report" } } },
-    { dataDescriptor: { label: ".description", objectdata: { message: "Final approved version" } } },
-    { dataDescriptor: { label: ".filename",    objectdata: { message: "quarterly-report.pdf" } } },
-    { dataDescriptor: { label: ".filesize",    objectdata: { message: "2097152" } } }
+    {
+      "i4GC1YGEVD21afWudGoFJVdnfjJ5XWnCQv": {
+        "version": 1,
+        "flags": 13,
+        "objectdata": "<ciphertext, hex>",
+        "epk":        "<ephemeral pubkey, hex>",
+        "ivk":        "<on-chain incoming viewing key, hex>"
+      }
+    }
   ]
 }
 ```
 
-Important: the actual value in each DataDescriptor lives at `objectdata.message`, not at `objectdata` directly. The outer key (`proof.basic`) is a VDXF key — a deterministic i-address derived from the namespace. On testnet this is `testidx.vrsctest::proof.basic`, on mainnet `vtimestamp.vrsc::proof.basic`. The labels (`.sha256`, `.title`, etc.) are shorthand — on-chain, these are represented as i-addresses.
+The outer key (`proof.basic`) is a VDXF key — a deterministic i-address derived from the namespace. On testnet this is `testidx.vrsctest::proof.basic`, on mainnet `vtimestamp.vrsc::proof.basic`. The wrapper key `i4GC1YGEVD21afWudGoFJVdnfjJ5XWnCQv` is the DataDescriptor VDXF key and is the same on both networks.
 
-Each DataDescriptor also includes a `mimetype` field set to `text/plain` for all fields, a `flags` field, and a `version` field.
+### Decrypted Payload
 
-**Fields:**
-- `.sha256` — SHA-256 hash (required, 64 hex chars)
-- `.title` — Human-readable title (required)
-- `.description` — Optional description
-- `.filename` — Original filename (optional)
-- `.filesize` — File size in bytes as string (optional)
+A single `decryptdata` call recovers a JSON object containing every metadata field for the timestamp:
+
+```
+{
+  "sha256":      "a7f3b2c1d4e5f6a7b8c9d0e1...",
+  "title":       "Q4 Financial Report",
+  "description": "Final approved version",
+  "filename":    "quarterly-report.pdf",
+  "filesize":    2097152
+}
+```
+
+**Payload Fields:**
+- `sha256` — SHA-256 hash (required, 64 hex chars)
+- `title` — Human-readable title (required)
+- `description` — Optional description
+- `filename` — Original filename (optional)
+- `filesize` — File size in bytes, number (optional)
+
+Optional fields are simply omitted from the JSON object when not present. New fields can be added without breaking existing readers.
+
+**Why public-encrypted?** The Verus convention for application data on a VerusID is to encrypt the payload at rest with an on-chain viewing key. Encryption is the storage envelope here, not a privacy mechanism — anyone running a Verus node with `decryptdata` available recovers the exact same JSON. Consumers all go through one uniform code path (`decryptdata` + `JSON.parse`) regardless of which app wrote the entry.
 
 **Timestamp Derivation:** The block time itself is not stored in identity data — it's derived from the block that contains the transaction. Use `getblock` with the block hash from `getidentityhistory` to get the block time (Unix timestamp) and height.
 
 ### VDXF Key Reference
 
-All keys are deterministic i-addresses derived from their namespaced names.
+All keys are deterministic i-addresses derived from their namespaced names. With the single-leaf JSON payload, only two VDXF keys appear on-chain — the outer container and the DataDescriptor wrapper.
 
 | Key | Testnet I-Address | Mainnet I-Address | Purpose |
 |-----|-------------------|-------------------|---------|
-| proof.basic (outer) | i6UD4js3jqyjz9Mttmbk2Sh4eCuwLKPLyQ | iJvkQ3uTKmRoFiE3rtP8YJxryLBKu8enmX | Container for all timestamp data |
-| DataDescriptor (wrapper) | i4GC1YGEVD21afWudGoFJVdnfjJ5XWnCQv (same both networks) | | DataDescriptor wrapper key |
-| .sha256 label | iBCkvv7KC18xd3P164Cvw1pxpLo5FyGEtm | iPRekBwQwFxNHf6mE68n8i2iXEnVdk1hw8 | Document SHA-256 hash |
-| .title label | iHXGu1nW4jQoeooBHPGE58qQGf9wMakEtj | iJx4aJf4SRByyNAi4Z93FC7QNaysyU5mdP | Timestamp title |
-| .description label | iP1PCTTHPpktP26xTEu1BuwENWMHQaia4D | iS8HnXSHWPL7GLkxYS4SpC7QW2Bnyp93T2 | Optional description |
-| .filename label | i4xgBqX9btMX8tnAjsyVFrgSLnigxPwBw5 | iBTcwxUDgvqGXGMC26U52522HrsXC8ggoC | Original filename |
-| .filesize label | iRz2tyZZEwmrxRPSrwN8UTAC8g5KyVkBiE | iHBnDKDyKbXeizg322cxLUps7Uodc1udF4 | File size in bytes |
+| proof.basic (outer) | i6UD4js3jqyjz9Mttmbk2Sh4eCuwLKPLyQ | iJvkQ3uTKmRoFiE3rtP8YJxryLBKu8enmX | Container for the timestamp entry on the identity |
+| DataDescriptor (wrapper) | i4GC1YGEVD21afWudGoFJVdnfjJ5XWnCQv (same on every chain) | | DataDescriptor wrapper key |
 
-Testnet keys use the `testidx.vrsctest::` namespace. Mainnet keys use the `vtimestamp.vrsc::` namespace.
+Testnet keys use the `testidx.vrsctest::` namespace. Mainnet keys use the `vtimestamp.vrsc::` namespace. Per-field labels (`.sha256`, `.title`, …) are *not* minted as separate VDXF keys — field names live inside the decrypted JSON object instead, which keeps the schema extensible without registering new keys.
 
 ### Verifying Programmatically
 
-You can verify timestamps using the Verus CLI without the vtimestamp website. The primary call is `getidentityhistory`, which gives you per-update block info needed to prove when a timestamp was recorded.
+You can verify timestamps using the Verus CLI without the vtimestamp website. The primary call is `getidentityhistory`, which gives you per-update block info needed to prove when a timestamp was recorded. Each entry's payload is decrypted with `decryptdata`.
 
 **Step 1: Get Identity History**
 ```
@@ -310,9 +332,34 @@ verus getidentityhistory "alice@"
 Returns every `updateidentity` transaction for that identity. Each history entry includes `height`, `blockhash`, the full identity state at that point (including `contentmultimap`), and `output.txid`. Optional trailing arguments can narrow the height range; omitting them returns the full history.
 
 **Step 2: Find Timestamp Entries**
-Look for entries where `identity.contentmultimap` contains the `proof.basic` key (use the appropriate i-address for your network). Parse each DataDescriptor. Important: the field value lives at `objectdata.message`, not at `objectdata` directly. Match each descriptor's `label` against the known i-addresses (`.sha256`, `.title`, etc.) and compare the hash case-insensitively.
+Look for entries where `identity.contentmultimap` contains the `proof.basic` key (use the appropriate i-address for your network). Each entry under the outer key is a DataDescriptor in public-encrypted mode (`flags: 13`, with `epk` and on-chain `ivk`). The payload lives in `objectdata` as a hex-encoded ciphertext — you'll decrypt it in the next step.
 
-**Step 3: Get Block Time**
+**Step 3: Decrypt the Payload**
+Call `decryptdata` with the full descriptor object plus the anchoring txid, asking the daemon to retrieve and decrypt:
+```
+verus decryptdata '{
+  "version":    1,
+  "flags":      13,
+  "objectdata": "317d12c4...",
+  "epk":        "dfb49b14...",
+  "ivk":        "068aa715...",
+  "txid":       "a1b2c3d4e5f6...",
+  "retrieve":   true
+}'
+```
+The result is a descriptor whose `objectdata` field contains the hex-encoded utf-8 bytes of a JSON string. Convert to text and parse:
+```
+Buffer.from(result[0].objectdata, 'hex').toString('utf8')
+// → '{"sha256":"a7f3b2c1...","title":"Q4 Financial Report",...}'
+
+JSON.parse(...)
+// → { sha256, title, description?, filename?, filesize? }
+```
+Compare the parsed `sha256` to the hash of the document you're verifying (case-insensitive).
+
+**RPC requirement:** `decryptdata` must be available on whichever Verus RPC endpoint you use. A local Verus daemon always works; some public endpoints whitelist it, others don't.
+
+**Step 4: Get Block Time**
 ```
 verus getblock "blockhash_from_history"
 ```
@@ -326,11 +373,39 @@ The `time` field in the block response is the Unix timestamp — the consensus-v
 verus getidentitycontent "alice@" 0 0 false 0 "vtimestamp.vrsc::proof.basic"
 ```
 
-The trailing argument filters results to just `proof.basic` entries. Use `testidx.vrsctest::proof.basic` on testnet.
+The trailing argument filters results to just `proof.basic` entries. Use `testidx.vrsctest::proof.basic` on testnet. You'll still need `decryptdata` to read each entry's payload.
 
 **Important caveat:** `getidentitycontent`'s top-level `blockheight` and `txid` refer only to the identity's latest update — not to any specific entry inside the contentmultimap. If you want to know when a particular hash was recorded, you must use `getidentityhistory` to find the exact updateidentity transaction that added it, then call `getblock` against that entry's `blockhash`.
 
 **When to use which:** Use `getidentitycontent` for "show me this identity's current timestamps." Use `getidentityhistory` when you need per-timestamp recording times — which is the core of timestamp verification and what vtimestamp's own verify page does.
+
+### Writing from Your Own App
+
+If you're building a Verus dapp that wants the same on-chain shape (public-encrypted DataDescriptor under your own outer key), here are the two envelope forms — pick the one that matches your write path. Each ends up with an identical `flags: 13` entry on-chain.
+
+**Direct daemon RPC (CLI tools, MCPs, server-side workers):** emit one entry per outer-key as an **array** with a `{ data: { message: ... } }` envelope inside. The daemon resolves this shorthand on `updateidentity` and stores a `flags: 13` DataDescriptor with `epk` + on-chain `ivk`:
+```
+{
+  "yourapp.chain::outer.key": [
+    { "data": { "message": JSON.stringify(payload) } }
+  ]
+}
+```
+
+**Wallet writers (Verus Mobile via IdentityUpdateRequest):** emit a **single object** (not an array) with `messagehex`. The SDK's `IdentityUpdateRequestDetails.fromCLIJson` shortcut detects the `data` key on a single object and routes it through `PartialSignData` → signdata-style wallet processing, which the daemon resolves to `flags: 13`:
+```
+{
+  "yourapp.chain::outer.key": {
+    "data": {
+      "messagehex": Buffer.from(JSON.stringify(payload), 'utf-8').toString('hex')
+    }
+  }
+}
+```
+
+**Don't mix the two forms.** Passing an array of `{ data: ... }` through the SDK throws `Unknown vdxfkey: [object Object]`; passing a single object through direct daemon RPC bypasses the array-form envelope shorthand. Use the FQN form (`name.chain::key`) for the outer key on writes — Verus Mobile rejects custom i-address outer keys.
+
+**Reader recipe:** iterate the array under your outer key. For any descriptor where the encrypted flag (`flags & 0x2`) is set, call `decryptdata` with the full descriptor + txid + `retrieve: true`, then `Buffer.from(result[0].objectdata, 'hex').toString('utf8')` + `JSON.parse` to recover your payload. The wrapper key (`i4GC1YGEVD21afWudGoFJVdnfjJ5XWnCQv`) is the same on every chain; the outer key normalizes to its i-address on storage — readers should accept both FQN and i-address forms.
 
 ### MCP Server Integration
 

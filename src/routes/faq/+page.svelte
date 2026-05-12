@@ -125,7 +125,7 @@
       "name": "How much does it cost?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "vtimestamp itself is free. The only cost is the Verus blockchain transaction fee of approximately 0.0003 VRSC per timestamp (0.0001 VRSC base fee plus a small amount for the structured data), paid from your wallet when you approve the transaction. You'll need a small amount of VRSC in your Verus wallet to cover this fee. There are no subscriptions, no per-stamp fees, and no hidden costs."
+        "text": "vtimestamp itself is free. The only cost is Verus blockchain transaction fees — a 0.0001 VRSC base fee plus a data-storage fee for the encrypted payload, totalling roughly 0.004 to 0.005 VRSC per timestamp, paid from your wallet when you approve the transaction. You'll need a small amount of VRSC in your Verus wallet to cover these fees. There are no subscriptions, no per-stamp fees, and no hidden costs."
       }
     },
     {
@@ -173,7 +173,15 @@
       "name": "Can I verify without the vtimestamp website?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. You can use the Verus CLI to query any identity's history directly. Run verus getidentityhistory to see all updates, then look for entries with the proof.basic VDXF key. Each entry includes the block hash and height, which you can use with verus getblock to confirm the exact timestamp."
+        "text": "Yes. You can use the Verus CLI to query any identity's history directly. Run verus getidentityhistory to see all updates, then look for entries with the proof.basic VDXF key. Each entry's payload is a public-encrypted DataDescriptor (flags: 13) — call verus decryptdata with the descriptor, the anchoring txid, and retrieve: true to recover the JSON object containing sha256, title, description, filename, and filesize. Use verus getblock against the entry's blockhash to confirm the timestamp. decryptdata must be available on whichever RPC endpoint you use; a local Verus daemon always works."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How is timestamp data stored on chain?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Each timestamp is one entry under the proof.basic VDXF key on the user's VerusID contentmultimap. The entry is a single DataDescriptor in public-encrypted mode (flags: 13): the daemon encrypts the payload with an ephemeral key and publishes the incoming viewing key (ivk) on-chain. Anyone with a Verus node that exposes decryptdata can recover the original JSON — encryption here is the storage convention for application data on a public VerusID, not a privacy mechanism for the metadata itself."
       }
     }
   ]
@@ -305,7 +313,7 @@
 			<div class="card">
 				<h3 class="font-semibold mb-2">How much does it cost?</h3>
 				<p class="text-secondary text-sm">
-					vtimestamp itself is free. The only cost is the Verus blockchain transaction fee of approximately 0.0003 VRSC per timestamp (0.0001 VRSC base fee plus a small amount for the structured data), paid from your wallet when you approve the transaction. You'll need a small amount of VRSC in your Verus wallet to cover this fee. There are no subscriptions, no per-stamp fees, and no hidden costs.
+					vtimestamp itself is free. The only cost is Verus blockchain transaction fees — a 0.0001 VRSC base fee plus a data-storage fee for the encrypted payload, totalling roughly 0.004 to 0.005 VRSC per timestamp, paid from your wallet when you approve the transaction. You'll need a small amount of VRSC in your Verus wallet to cover these fees. There are no subscriptions, no per-stamp fees, and no hidden costs.
 				</p>
 			</div>
 
@@ -351,9 +359,16 @@
 			</div>
 
 			<div class="card">
+				<h3 class="font-semibold mb-2">How is timestamp data stored on chain?</h3>
+				<p class="text-secondary text-sm">
+					Each timestamp is one entry under the <code class="hash">proof.basic</code> VDXF key on your VerusID's <code class="hash">contentmultimap</code>. The entry is a single <code class="hash">DataDescriptor</code> in <strong>public-encrypted mode</strong> (<code class="hash">flags: 13</code>): the daemon encrypts the payload with an ephemeral key and publishes the incoming viewing key (<code class="hash">ivk</code>) on-chain. Anyone with a Verus node that exposes <code class="hash">decryptdata</code> can recover the original JSON containing your hash and metadata. Encryption here is the storage convention for application data on a public VerusID — not a privacy mechanism for the metadata itself.
+				</p>
+			</div>
+
+			<div class="card">
 				<h3 class="font-semibold mb-2">Can I verify without the vtimestamp website?</h3>
 				<p class="text-secondary text-sm">
-					Yes. You can use the Verus CLI to query any identity's history directly. Run <code class="hash">verus getidentityhistory "identity@"</code> to see all updates, then look for entries with the <code class="hash">proof.basic</code> VDXF key. Each entry includes the block hash and height, which you can use with <code class="hash">verus getblock</code> to confirm the exact timestamp. See the <a href="/developers" class="text-primary hover:underline">Developer Documentation</a> for details.
+					Yes. Use the Verus CLI to query any identity's history directly. Run <code class="hash">verus getidentityhistory "identity@"</code> to see all updates and find entries under the <code class="hash">proof.basic</code> VDXF key. For each one, call <code class="hash">verus decryptdata</code> with the descriptor + anchoring txid + <code class="hash">retrieve: true</code> to recover the JSON payload, then <code class="hash">verus getblock</code> on the entry's blockhash to confirm the exact timestamp. <code class="hash">decryptdata</code> needs to be available on whichever RPC endpoint you use — a local Verus daemon always works. See the <a href="/developers" class="text-primary hover:underline">Developer Documentation</a> for the full recipe.
 				</p>
 			</div>
 		</div>

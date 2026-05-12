@@ -104,7 +104,7 @@
 				<div>
 					<h3 class="font-semibold mb-1">Blockchain Confirmation</h3>
 					<p class="text-secondary text-sm mb-2">
-						Once the transaction is included in a block, your timestamp is permanent. The hash and metadata are now part of your VerusID's on-chain state (stored in its <code class="hash">contentmultimap</code>) — queryable by anyone, at any time. The block itself provides:
+						Once the transaction is included in a block, your timestamp is permanent. The hash and metadata are now part of your VerusID's on-chain state — stored as a single public-encrypted entry in its <code class="hash">contentmultimap</code> with an on-chain viewing key, so anyone running a Verus node can read it back. The block itself provides:
 					</p>
 					<ul class="text-secondary text-sm space-y-1 ml-4 list-disc">
 						<li><strong>Block height</strong> — the position in the chain (e.g., block #4,523,891)</li>
@@ -143,7 +143,7 @@
 				<div>
 					<h3 class="font-semibold mb-1">Search the Identity's History</h3>
 					<p class="text-secondary text-sm">
-						The system queries the Verus blockchain using <code class="hash">getidentityhistory</code>, retrieving every update ever made to that VerusID. It scans each update for the <code class="hash">proof.basic</code> key and compares stored hashes against the computed hash.
+						The system queries the Verus blockchain using <code class="hash">getidentityhistory</code>, retrieving every update ever made to that VerusID. For each update with a <code class="hash">proof.basic</code> entry, it asks the Verus daemon to decrypt the payload (using the on-chain viewing key) and compares the stored hash against the computed hash.
 					</p>
 				</div>
 			</div>

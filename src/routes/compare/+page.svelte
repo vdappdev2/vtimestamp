@@ -90,7 +90,7 @@
 					</tr>
 					<tr>
 						<td>Cost</td>
-						<td class="col-highlight">Verus tx fee (~0.0003 VRSC)</td>
+						<td class="col-highlight">Verus tx fees (~0.004–0.005 VRSC)</td>
 						<td>Notary fee ($5-50+)</td>
 						<td>Subscription / per-stamp fee</td>
 						<td>Free to per-stamp (commercial TSAs charge)</td>
@@ -182,7 +182,7 @@
 					</tr>
 					<tr>
 						<td>Cost per timestamp</td>
-						<td class="col-highlight">0.0003 VRSC (stable)</td>
+						<td class="col-highlight">~0.004–0.005 VRSC (stable)</td>
 						<td>21,000-41,000 gas + variable gwei (volatile)</td>
 						<td>0.000005 SOL</td>
 						<td>~0.18 ADA</td>

@@ -5,7 +5,9 @@
 > metadata on their VerusID (a self-sovereign, protocol-native blockchain
 > identity). Anyone can verify timestamps without an account. Documents never
 > leave the user's device. No smart contracts required — timestamps are stored
-> via native updateidentity transactions for approximately 0.0003 VRSC each.
+> via native updateidentity transactions as a single public-encrypted
+> DataDescriptor with an on-chain viewing key, so any Verus node can decrypt
+> and read the payload. Cost is roughly 0.004–0.005 VRSC per timestamp.
 
 vtimestamp creates cryptographic proof that a document existed at a specific
 point in time. The proof is permanently stored on the Verus blockchain, tied

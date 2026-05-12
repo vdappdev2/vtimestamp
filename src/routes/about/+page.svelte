@@ -48,7 +48,7 @@
 			Your documents never leave your device — only a SHA-256 hash is published. Anyone can verify your timestamps without needing an account, trusting a company, or relying on any centralized service.
 		</p>
 		<p>
-			The mission is simple: make document timestamping accessible, private, and permanent. No subscriptions, no accounts, no gatekeepers, no databases that can disappear. The only cost is a tiny blockchain transaction fee — approximately 0.0003 VRSC per timestamp, a fraction of a cent.
+			The mission is simple: make document timestamping accessible, private, and permanent. No subscriptions, no accounts, no gatekeepers, no databases that can disappear. The only cost is tiny Verus transaction fees — a 0.0001 VRSC base fee plus a small data-storage fee for the encrypted payload, totalling roughly 0.004 to 0.005 VRSC per timestamp.
 		</p>
 		<p>
 			Try it at <a href="/" class="text-primary hover:underline">vtimestamp.com</a> — mainnet is live, and <a href="https://test.vtimestamp.com" class="text-primary hover:underline" target="_blank" rel="noopener">test.vtimestamp.com</a> is available if you want to experiment first.
@@ -72,11 +72,11 @@
 			</div>
 			<div class="card">
 				<h3 class="font-semibold mb-1 text-sm">VDXF Data Format</h3>
-				<p class="text-secondary text-xs">Structured, typed data storage with namespaced keys. Timestamps are stored in a standardized, discoverable format — not raw hex blobs.</p>
+				<p class="text-secondary text-xs">Standardized, typed envelope on the identity — a <code class="hash">DataDescriptor</code> under a namespaced VDXF key (<code class="hash">vtimestamp.vrsc::proof.basic</code>). Anyone can discover it by key and read it through one uniform path: decrypt, then parse JSON.</p>
 			</div>
 			<div class="card">
 				<h3 class="font-semibold mb-1 text-sm">Low Cost</h3>
-				<p class="text-secondary text-xs">Transaction fees are approximately 0.0003 VRSC per timestamp. Costs are stable and predictable — no volatile gas markets.</p>
+				<p class="text-secondary text-xs">Transaction fees are roughly 0.004 to 0.005 VRSC per timestamp (a 0.0001 VRSC base fee plus a small data-storage fee for the encrypted payload). Costs are stable and predictable — no volatile gas markets.</p>
 			</div>
 			<div class="card">
 				<h3 class="font-semibold mb-1 text-sm">Permissionless</h3>
