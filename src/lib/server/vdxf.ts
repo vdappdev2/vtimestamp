@@ -309,10 +309,22 @@ function buildLegacyTimestampContentMap(input: CreateTimestampInput): ContentMul
 }
 
 /**
- * Encrypted writer. Emits the daemon-managed `{data: {message: <json>}}`
- * envelope so the daemon encrypts with an ephemeral key and publishes the
- * IVK on-chain (flags:13). Anyone can decrypt via
- * `decryptdata + txid + retrieve:true`.
+ * Encrypted writer — wallet-path test using the SDK's signdata shortcut.
+ *
+ * `IdentityUpdateRequestDetails.fromCLIJson` (IdentityUpdateRequestDetails.ts:357-372)
+ * detects a single `{data: ...}` object as a cmm value and diverts it into
+ * `signDataMap` → `PartialSignData.fromCLIJson`. That path accepts
+ * `messagehex` (PartialSignData.ts:649). The wallet then runs `signdata` and
+ * substitutes the resulting DataDescriptor into the cmm before submitting.
+ *
+ * Open question this test answers: what `flags` does that produce on-chain?
+ * Without `encrypttoaddress` it's likely signed plaintext (flags:2-ish), not
+ * the flags:13 public-encrypted shape the daemon's own `{data:{}}` envelope
+ * yields. Inspect via `getidentity` after a wallet write.
+ *
+ * Note: cmm value is a single object (not an array). The array form falls
+ * through to `VdxfUniValue.fromJson` and throws — that was the previous
+ * failure mode logged in transition_plan.md §"Wallet-path encryption".
  */
 function buildEncryptedTimestampContentMap(input: CreateTimestampInput): ContentMultiMap {
   const payload: TimestampData = {
@@ -323,13 +335,11 @@ function buildEncryptedTimestampContentMap(input: CreateTimestampInput): Content
     ...(input.filesize !== undefined ? { filesize: input.filesize } : {}),
   };
 
-  // The cmm value type is DataDescriptorWrapper[] but the daemon also accepts
-  // `{data: {...}}` envelope objects in the same array — cast through to
-  // satisfy the wrapper typing.
-  const envelope = { data: { message: JSON.stringify(payload) } };
+  const messagehex = Buffer.from(JSON.stringify(payload), 'utf-8').toString('hex');
+  const envelope = { data: { messagehex } };
 
   return {
-    [VDXF_KEYS.proofBasicFqn]: [envelope as unknown as DataDescriptorWrapper],
+    [VDXF_KEYS.proofBasicFqn]: envelope as unknown as DataDescriptorWrapper[],
   };
 }
 
