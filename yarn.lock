@@ -2029,6 +2029,12 @@ varuint-bitcoin@1.0.4:
     axios "1.11.0"
     verus-typescript-primitives "git+https://github.com/VerusCoin/verus-typescript-primitives.git"
 
+"verusid-cmm-decrypt@git+https://github.com/vdappdev2/verusid-cmm-decrypt.git#b5e6755":
+  version "0.1.0"
+  resolved "git+https://github.com/vdappdev2/verusid-cmm-decrypt.git#b5e6755c5018187a6930cd6682afd1dff38197e9"
+  dependencies:
+    verus-typescript-primitives "git+https://github.com/VerusCoin/verus-typescript-primitives.git#27e6c07"
+
 "verusid-ts-client@git+https://github.com/VerusCoin/verusid-ts-client.git#cc125b5":
   version "0.1.0"
   resolved "git+https://github.com/VerusCoin/verusid-ts-client.git#cc125b540224bcc29a3eae763c1057389df77534"

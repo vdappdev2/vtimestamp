@@ -35,6 +35,7 @@
 		"@bitgo/utxo-lib": "git+https://github.com/VerusCoin/BitGoJS.git#80abaccd57652215bd5d9ebbe969ffe9c4266d25",
 		"bs58check": "4.0.0",
 		"qrcode": "1.5.4",
+		"verusid-cmm-decrypt": "git+https://github.com/vdappdev2/verusid-cmm-decrypt.git#b5e6755",
 		"verus-typescript-primitives": "git+https://github.com/VerusCoin/verus-typescript-primitives.git#27e6c07",
 		"verusid-ts-client": "git+https://github.com/VerusCoin/verusid-ts-client.git#cc125b5"
 	},

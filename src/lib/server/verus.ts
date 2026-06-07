@@ -312,3 +312,15 @@ export async function decryptData(
     { datadescriptor, txid, retrieve: true },
   ]);
 }
+
+/**
+ * Fetch the raw hex of a transaction. Used by `verusid-cmm-decrypt` to resolve
+ * the flags:13 envelope's data-deposit vout without going through the daemon's
+ * `decryptdata` RPC (which is gated behind a whitelist on most public nodes).
+ *
+ * verbose=0 returns the raw serialized transaction as a hex string; verbose=1
+ * returns a decoded JSON object, which we don't want here.
+ */
+export async function getRawTransaction(txid: string): Promise<string> {
+  return rpcCall<string>('getrawtransaction', [txid, 0]);
+}

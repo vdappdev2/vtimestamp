@@ -21,3 +21,6 @@ Thumbs.db
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Dev-only side-by-side smoke for verusid-cmm-decrypt (kept locally, not published)
+smoke/

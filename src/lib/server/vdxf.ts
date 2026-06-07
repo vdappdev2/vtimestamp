@@ -13,6 +13,7 @@
  */
 
 import { env } from '$env/dynamic/private';
+import { decryptDescriptor as libDecryptDescriptor } from 'verusid-cmm-decrypt';
 import { VDXF_KEYS } from '../config';
 import type {
   ContentMultiMap,
@@ -20,7 +21,7 @@ import type {
   DataDescriptorWrapper,
   IdentityHistoryEntry,
 } from './verus';
-import { decryptData } from './verus';
+import { decryptData, getRawTransaction } from './verus';
 import type {
   TimestampData,
   TimestampRecord,
@@ -36,6 +37,27 @@ const USE_ENCRYPTED_CMM =
   env.USE_ENCRYPTED_CMM === '1'
   || env.USE_ENCRYPTED_CMM === 'true'
   || env.USE_ENCRYPTED_CMM === 'yes';
+
+// Reader-path mode for flags:13 envelope decrypt. Three values:
+//   'rpc-only'     — call `decryptdata` RPC only (legacy, default).
+//   'side-by-side' — call both `decryptdata` RPC AND verusid-cmm-decrypt local
+//                    lib, compare bytes, log divergences, return RPC result.
+//                    Cutover gate — must run with zero divergences over the
+//                    target N/M before flipping to lib-only.
+//   'lib-only'     — call verusid-cmm-decrypt; on decrypt failure fall back to
+//                    `decryptdata` RPC and log the fallback.
+// Unknown values fall back to 'rpc-only' with a startup warning.
+type SaplingDecryptMode = 'rpc-only' | 'side-by-side' | 'lib-only';
+const SAPLING_DECRYPT_MODE: SaplingDecryptMode = (() => {
+  const raw = env.SAPLING_DECRYPT_MODE?.toLowerCase();
+  if (raw === 'side-by-side' || raw === 'lib-only' || raw === 'rpc-only') return raw;
+  if (raw && raw.length > 0) {
+    console.warn(
+      `[sapling-divergence] unknown SAPLING_DECRYPT_MODE=${raw}, defaulting to rpc-only`,
+    );
+  }
+  return 'rpc-only';
+})();
 
 // ============================================================================
 // Flag bits on the inner DataDescriptor
@@ -137,6 +159,137 @@ function cacheKeyFor(descriptor: DataDescriptor, txid: string): string {
   return `${txid}|${od}`;
 }
 
+// ----------------------------------------------------------------------------
+// Envelope-bytes layer — returns the raw AEAD plaintext Buffer for a flags:13
+// descriptor. JSON parsing happens above. Dispatches on SAPLING_DECRYPT_MODE.
+// ----------------------------------------------------------------------------
+
+type DivergenceEvent =
+  | { kind: 'byte-mismatch'; rpcPlaintextHex: string; libPlaintextHex: string }
+  | { kind: 'lib-failed'; libError: string }
+  | { kind: 'rpc-failed-lib-succeeded'; rpcError: string }
+  | { kind: 'lib-failed-fallback-to-rpc'; libError: string };
+
+function logDivergence(
+  txid: string,
+  descriptor: DataDescriptor,
+  event: DivergenceEvent,
+): void {
+  const od = typeof descriptor.objectdata === 'string' ? descriptor.objectdata : '';
+  console.warn(
+    '[sapling-divergence] ' +
+      JSON.stringify({
+        ts: new Date().toISOString(),
+        txid,
+        descriptorObjectdata: od,
+        ...event,
+      }),
+  );
+}
+
+async function decryptViaRpc(
+  descriptor: DataDescriptor,
+  txid: string,
+): Promise<Buffer> {
+  const decrypted = await decryptData(descriptor, txid);
+  if (decrypted.length === 0) {
+    throw new Error('decryptdata returned empty array');
+  }
+  return Buffer.from(decrypted[0].objectdata, 'hex');
+}
+
+async function decryptViaLib(
+  descriptor: DataDescriptor,
+  txid: string,
+): Promise<Buffer> {
+  if (typeof descriptor.objectdata !== 'string' || !descriptor.ivk || !descriptor.epk) {
+    throw new Error(
+      'flags:13 descriptor missing ivk/epk/objectdata required for local Sapling decrypt',
+    );
+  }
+  return libDecryptDescriptor(
+    {
+      ivk: descriptor.ivk,
+      epk: descriptor.epk,
+      objectdata: descriptor.objectdata,
+    },
+    txid,
+    getRawTransaction,
+  );
+}
+
+async function decryptSideBySide(
+  descriptor: DataDescriptor,
+  txid: string,
+): Promise<Buffer> {
+  const [rpcResult, libResult] = await Promise.allSettled([
+    decryptViaRpc(descriptor, txid),
+    decryptViaLib(descriptor, txid),
+  ]);
+
+  // RPC is the trusted result in side-by-side mode — we return whichever it
+  // produced (or its error), and log whatever the lib did alongside.
+  if (rpcResult.status === 'rejected') {
+    if (libResult.status === 'fulfilled') {
+      logDivergence(txid, descriptor, {
+        kind: 'rpc-failed-lib-succeeded',
+        rpcError: String(rpcResult.reason),
+      });
+    }
+    throw rpcResult.reason;
+  }
+
+  const rpcBuf = rpcResult.value;
+  if (libResult.status === 'rejected') {
+    logDivergence(txid, descriptor, {
+      kind: 'lib-failed',
+      libError: String(libResult.reason),
+    });
+    return rpcBuf;
+  }
+
+  const libBuf = libResult.value;
+  const rpcHex = rpcBuf.toString('hex');
+  const libHex = libBuf.toString('hex');
+  if (rpcHex !== libHex) {
+    logDivergence(txid, descriptor, {
+      kind: 'byte-mismatch',
+      rpcPlaintextHex: rpcHex,
+      libPlaintextHex: libHex,
+    });
+  }
+  return rpcBuf;
+}
+
+async function decryptViaLibWithFallback(
+  descriptor: DataDescriptor,
+  txid: string,
+): Promise<Buffer> {
+  try {
+    return await decryptViaLib(descriptor, txid);
+  } catch (libError) {
+    logDivergence(txid, descriptor, {
+      kind: 'lib-failed-fallback-to-rpc',
+      libError: String(libError),
+    });
+    return decryptViaRpc(descriptor, txid);
+  }
+}
+
+async function decryptEnvelopeBytes(
+  descriptor: DataDescriptor,
+  txid: string,
+): Promise<Buffer> {
+  switch (SAPLING_DECRYPT_MODE) {
+    case 'rpc-only':
+      return decryptViaRpc(descriptor, txid);
+    case 'side-by-side':
+      return decryptSideBySide(descriptor, txid);
+    case 'lib-only':
+      return decryptViaLibWithFallback(descriptor, txid);
+  }
+}
+
 async function decryptEnvelopeEntry(
   descriptor: DataDescriptor,
   txid: string
@@ -147,20 +300,17 @@ async function decryptEnvelopeEntry(
 
   let parsed: TimestampData | null = null;
   try {
-    const decrypted = await decryptData(descriptor, txid);
-    if (decrypted.length > 0) {
-      const hex = decrypted[0].objectdata;
-      const json = Buffer.from(hex, 'hex').toString('utf8');
-      const payload = JSON.parse(json) as Partial<TimestampData>;
-      if (payload.sha256 && payload.title) {
-        parsed = {
-          sha256: payload.sha256,
-          title: payload.title,
-          description: payload.description,
-          filename: payload.filename,
-          filesize: payload.filesize,
-        };
-      }
+    const plaintext = await decryptEnvelopeBytes(descriptor, txid);
+    const json = plaintext.toString('utf8');
+    const payload = JSON.parse(json) as Partial<TimestampData>;
+    if (payload.sha256 && payload.title) {
+      parsed = {
+        sha256: payload.sha256,
+        title: payload.title,
+        description: payload.description,
+        filename: payload.filename,
+        filesize: payload.filesize,
+      };
     }
   } catch {
     parsed = null;
